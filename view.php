@@ -24,14 +24,3 @@
     	});	
 	});
 	</script>
-	<style type="text/css">
-		.input-text-send:active {
-			background-color: #ffd464;
-		}
-		.input-text-send {
-			background-color: #f0f1ee; 
-		}
-		.input-text-message {
-			background-color: #ffd464;
-		}
-	</style>
