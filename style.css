@@ -45,9 +45,13 @@ button {
     background-color : #157a7a;
 }
 
-.user :hover {
-    background-color : #157a7a !important   ;
+#enter-choice :hover {
+    background-color: /*#fbebeb*/ #ffd464 !important;
 }
+
+/*.user :hover {
+    background-color : #157a7a !important   ;
+} da sistemare */
 
 .user {
     background-color: #8fd4d9;

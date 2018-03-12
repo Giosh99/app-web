@@ -1,11 +1,7 @@
-<head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-</head>
-
-<div class="col align-self-end h-100 w-100 p-0">
-	<div class="flex-row d-flex w-100" style="height:80vh; background-color:white; overflow-y: scroll;">
+<div class="col align-self-end h-100 w-100 p-0" >
+	<div class="flex-row d-flex w-100" style="height:80vh; background-color:white; overflow-y: scroll;" id="scrollbar">
 	    <div class="col-md-12 col-sm-12 h-100 radius-5 h-100">
-	    	ciao
+	    	gaia non rompere il cazzo
 	    </div>
 	</div>
 	<div class="flex-row d-flex">
