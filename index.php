@@ -42,9 +42,9 @@ function sec_session_start() {
 <body>
     <div class="container h-100 p-0 border-left border-bottom border-right">
         <?php require 'header.php' ?>
-        <div class="d-flex flex-row w-100" style="height:92vh;">
-            <?php require 'sidebar.php' ?>
-            <?php require 'view.php' ?>
+        <div class="d-flex flex-row w-100 p-0 m-0" id="content-part">
+           <?php require 'sidebar.php' ?>
+           <?php require 'view.php' ?> 
         </div>
     </div>
     </body>
