@@ -22,14 +22,13 @@ window.onload = function() {
     document.getElementById("send").addEventListener("click",sendMessage,false );
 	function sendMessage() {
 		var msg = document.getElementById("textarea").value;
-        alert(msg);
         httpRequest = new XMLHttpRequest();
         httpRequest.onreadystatechange = function() {
             if(httpRequest.readyState == 4 && httpRequest.status==200) {
                 document.getElementById("msg").innerHTML = httpRequest.responseText;
             }
         }
-        httpRequest.open("GET", 'view.php?msg='+msg, true);
+        httpRequest.open("GET", 'insert.php?msg='+msg, true);
         httpRequest.send();
 	}
 };

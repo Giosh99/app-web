@@ -4,13 +4,6 @@
 	    	<div class="flex-row d-flex">
 				<div class="col-6">
 					<span id="msg">
-					<?php 
-if($_GET != null) {
-	if($_GET["msg"] != null) {
-		$msg = $_GET["msg"];
-	}
-} 
-?> 
 					</span>
 				</div>
 			</div>
