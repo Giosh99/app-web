@@ -22,6 +22,19 @@ window.onload = function() {
     document.getElementById("send").addEventListener("click",sendMessage,false );
 	function sendMessage() {
 		var msg = document.getElementById("textarea").value;
+        if(msg.length > 80) {
+            var i=0,
+                j = 79,
+                res = "";
+            
+            while(i<msg.length){
+                res += msg.substring(i, j);
+                res += " "
+                i += 78;
+                j += 78;
+            }
+            msg = res;
+        }
         httpRequest = new XMLHttpRequest();
         httpRequest.onreadystatechange = function() {
             if(httpRequest.readyState == 4 && httpRequest.status==200) {

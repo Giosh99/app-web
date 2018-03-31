@@ -19,7 +19,7 @@ if($_GET != null) {
                              <div class="flex-row d-flex mt-2">
                                 <div class="chat self col-12">
                                     <div class="user-photo"></div>
-                                    <p class="chat-message" style="overflow-wrap:break-word">'.$extract["msg"].'</p>	
+                                    <p class="chat-message wrap">'.$extract["msg"].'</p>	
                                 </div>
                             </div>
                         </div>

@@ -173,7 +173,7 @@ html {
   margin: 5px 10px 0;
   border-radius: 10px;
   color: #1adda4;
-  font-size: 16px; }
+  font-size: 2vh; }
 
 .friend .chat-message {
   background: #1adda4; }
@@ -182,3 +182,13 @@ html {
   order: -1; }
 
 /*# sourceMappingURL=style.css.map */
+
+
+
+.wrap { 
+   white-space: pre-wrap;      /* CSS3 */   
+   white-space: -moz-pre-wrap; /* Firefox */    
+   white-space: -pre-wrap;     /* Opera <7 */   
+   white-space: -o-pre-wrap;   /* Opera 7 */    
+   word-wrap: break-word;      /* IE */
+}
