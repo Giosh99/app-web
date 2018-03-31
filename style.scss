@@ -163,3 +163,67 @@ $view-box-height: $content-height - $input-group-height;
             font-size: 15px;
         }
     }
+
+
+/*////////////////////*/
+/*        CHAT        */
+/*////////////////////*/
+
+    .chatbox {
+        width: 100%;
+        height: 600px;
+        background: #fff;
+        padding: 25px;
+        margin: 20px auto;
+        box-shadow: 0 3px #ccc;
+    }
+    
+    .chatlogs {
+        padding: 10px;
+        width: 100%;
+        height: 450px;
+        overflow-x: hidden;
+        overflow-y: scroll;
+    }
+    
+    .chatlogs::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    .chatlogs::-webkit-scrollbar-thumb {
+        border-radius: 5px;
+        background: rgba(0,0,0,.1);
+    }
+    
+    .chat {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: flex-start;
+        margin-bottom: 1vh;
+    }
+    
+    
+    .chat .user-photo {
+        width: 5vh;
+        height: 5vh;
+        background: #ccc;
+        border-radius: 50%;
+    }
+    
+    .chat .chat-message {
+        width: 80%;
+        padding: 1vh;
+        margin: 5px 10px 0;
+        border-radius: 10px;
+        color: #1adda4;;
+        font-size: 16px;
+    }
+    
+    .friend .chat-message {
+        background: #1adda4;
+    }
+    
+    .self .chat-message {
+        //background: #005959;
+        order: -1;
+    }

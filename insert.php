@@ -13,7 +13,17 @@ if($_GET != null) {
         $select_logs_query = "select * from logs";
         $result = mysqli_query($connection, $select_logs_query);
         while($extract = mysqli_fetch_array($result)) {
-            echo "messaggio: ".$extract["msg"]."<br>";
+
+            echo    '<div class="flex-row d-flex ">
+                        <div class="col-6 offset-3" >
+                             <div class="flex-row d-flex mt-2">
+                                <div class="chat self col-12">
+                                    <div class="user-photo"></div>
+                                    <p class="chat-message" style="overflow-wrap:break-word">'.$extract["msg"].'</p>	
+                                </div>
+                            </div>
+                        </div>
+                    </div>';
         }
 	}
 } 
