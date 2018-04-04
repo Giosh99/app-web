@@ -1,0 +1,194 @@
+/*////////////////////*/
+/*       INDEX        */
+/*////////////////////*/
+.my-container {
+  margin: 0em 0em 0em 0em;
+  padding: 0em 0em 0em 0em; }
+
+.pre-scrollable {
+  max-height: 92vh;
+  overflow-y: scroll; }
+
+html body {
+  background-color: #e0f0f1; }
+
+#content-part {
+  height: 93vh; }
+
+/*////////////////////*/
+/*       HEADER       */
+/*////////////////////*/
+.nav-bar {
+  width: 100%;
+  height: 5vh;
+  background: #0f5959; }
+
+.button {
+  cursor: pointer; }
+
+img {
+  height: 100%;
+  width: 100%; }
+
+a {
+  color: black;
+  text-transform: none;
+  text-decoration: none; }
+
+button {
+  border-color: transparent; }
+
+.house:hover, .bell :hover {
+  background-color: #157a7a; }
+
+#enter-choice :hover {
+  background-color: #ffd464 !important; }
+
+/*.user :hover {
+    background-color : #157a7a !important   ;
+} da sistemare */
+.user {
+  background-color: #8fd4d9; }
+
+.bell {
+  margin: 0;
+  padding: 0; }
+
+/*////////////////////*/
+/*        SIDEBAR     */
+/*////////////////////*/
+#scrollbar::-webkit-scrollbar {
+  width: 3px; }
+
+#scrollbar::-webkit-scrollbar-thumb {
+  background-color: #757575;
+  border-radius: 50px;
+  height: 100px; }
+
+#scrollbar::-webkit-scrollbar-track {
+  --webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  padding-bottom: 4px; }
+
+input[type=range] {
+  -webkit-appearance: none;
+  /* Hides the slider so that custom slider can be made */
+  width: 100%;
+  /* Specific width is required for Firefox. */
+  background: transparent;
+  /* Otherwise white in Chrome */ }
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; }
+
+input[type=range]:focus {
+  outline: none;
+  /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */ }
+
+input[type=range]::-ms-track {
+  width: 100%;
+  cursor: pointer;
+  /* Hides the slider so custom styles can be added */
+  background: transparent;
+  border-color: transparent;
+  color: transparent; }
+
+.message_box:hover {
+  cursor: pointer;
+  background-color: #faefef; }
+
+/*////////////////////*/
+/*        VIEW        */
+/*////////////////////*/
+.input-text-send:active {
+  background-color: #ffd464; }
+
+.input-text-send {
+  background-color: #f0f1ee; }
+
+.input-text-message {
+  background-color: #ffd464; }
+
+.input-group {
+  height: 9vh; }
+
+.view-box {
+  height: 84vh; }
+
+.form-control:focus {
+  border-color: none;
+  transform-style: none; }
+
+.fixed-search-input {
+  position: fixed; }
+
+html {
+  font-size: 2vh; }
+
+@media only screen and (max-width: 992px) {
+  .nav-bar {
+    height: 8vh; } }
+@media only screen and (min-width: 992px) {
+  html {
+    font-size: 15px; } }
+/*////////////////////*/
+/*        CHAT        */
+/*////////////////////*/
+.chatbox {
+  width: 100%;
+  height: 600px;
+  background: #fff;
+  padding: 25px;
+  margin: 20px auto;
+  box-shadow: 0 3px #ccc; }
+
+.chatlogs {
+  padding: 10px;
+  width: 100%;
+  height: 450px;
+  overflow-x: hidden;
+  overflow-y: scroll; }
+
+.chatlogs::-webkit-scrollbar {
+  width: 10px; }
+
+.chatlogs::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.1); }
+
+.chat {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  margin-bottom: 1vh; }
+
+.chat .user-photo {
+  width: 5vh;
+  height: 5vh;
+  background: #ccc;
+  border-radius: 50%; }
+
+.chat .chat-message {
+  width: 80%;
+  padding: 1vh;
+  margin: 5px 10px 0;
+  border-radius: 10px;
+  color: #1adda4;
+  font-size: 2vh; }
+
+.friend .chat-message {
+  background: #1adda4; }
+
+.self .chat-message {
+  order: -1; }
+
+/*# sourceMappingURL=style.css.map */
+
+
+
+.wrap { 
+   white-space: pre-wrap;      /* CSS3 */   
+   white-space: -moz-pre-wrap; /* Firefox */    
+   white-space: -pre-wrap;     /* Opera <7 */   
+   white-space: -o-pre-wrap;   /* Opera 7 */    
+   word-wrap: break-word;      /* IE */
+}
