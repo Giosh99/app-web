@@ -1,5 +1,5 @@
 <?php
-    namespace app;
+    namespace MyApp;
     use Ratchet\MessageComponentInterface;
     use Ratchet\ConnectionInterface;
 
@@ -12,15 +12,20 @@
 
         public function onOpen(ConnectionInterface $conn) { // it is calles every time a connection in opened in the browser
             //here we store the connection
-            $this->clients.attach($conn);
+            $this->clients->attach($conn);
             echo '<strong>connection estabilished</strong>';
             
         }
         public function onClose(ConnectionInterface $conn) {
-            
+            $this->clients->detach($conn);
         }
         public function onMessage(ConnectionInterface $from, $mess) {
-            
+                //send the message to all the other clients except the one who sent.
+            foreach ($this->clients as $client) {
+                if ($from !== $client) {
+                    $client->send($msg);
+                }
+            }
         }
        /* public function onError(ConnectionInterface $conn, /Exception $e) {
             

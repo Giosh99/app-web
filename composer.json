@@ -1,7 +1,7 @@
 {
     "autoload": {
         "psr-4": {
-            "MyApp\\": "C:/xampp/htdocs/app-web-master/index.php"
+            "MyApp": "src"
         }
     },
     "require": {
