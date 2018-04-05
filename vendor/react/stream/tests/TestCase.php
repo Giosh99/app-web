@@ -2,9 +2,7 @@
 
 namespace React\Tests\Stream;
 
-use PHPUnit\Framework\TestCase as BaseTestCase;
-
-class TestCase extends BaseTestCase
+class TestCase extends \PHPUnit_Framework_TestCase
 {
     protected function expectCallableExactly($amount)
     {
@@ -26,17 +24,6 @@ class TestCase extends BaseTestCase
         return $mock;
     }
 
-    protected function expectCallableOnceWith($value)
-    {
-        $callback = $this->createCallableMock();
-        $callback
-            ->expects($this->once())
-            ->method('__invoke')
-            ->with($value);
-
-        return $callback;
-    }
-
     protected function expectCallableNever()
     {
         $mock = $this->createCallableMock();
@@ -49,6 +36,6 @@ class TestCase extends BaseTestCase
 
     protected function createCallableMock()
     {
-        return $this->getMockBuilder('React\Tests\Stream\CallableStub')->getMock();
+        return $this->getMock('React\Tests\Stream\CallableStub');
     }
 }

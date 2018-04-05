@@ -3,45 +3,75 @@
 namespace React\Tests\Socket;
 
 use React\Socket\Connection;
+use React\Socket\Server;
+use React\EventLoop\StreamSelectLoop;
 
 class ConnectionTest extends TestCase
 {
-    public function testCloseConnectionWillCloseSocketResource()
+    /**
+     * @covers React\Socket\Connection::getRemoteAddress
+     */
+    public function testGetRemoteAddress()
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM does not support socket operation on test memory stream');
-        }
+        $loop   = new StreamSelectLoop();
+        $server = new Server($loop);
+        $server->listen(0);
 
-        $resource = fopen('php://memory', 'r+');
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
+        $class  = new \ReflectionClass('React\\Socket\\Server');
+        $master = $class->getProperty('master');
+        $master->setAccessible(true);
 
-        $connection = new Connection($resource, $loop);
-        $connection->close();
+        $client = stream_socket_client('tcp://localhost:' . $server->getPort());
 
-        $this->assertFalse(is_resource($resource));
+        $class  = new \ReflectionClass('React\\Socket\\Connection');
+        $method = $class->getMethod('parseAddress');
+        $method->setAccessible(true);
+
+        $servConn = new Connection($server->master, $loop);
+
+        $mock = $this->createCallableMock();
+        $mock
+            ->expects($this->once())
+            ->method('__invoke')
+            ->with($method->invokeArgs($servConn, array(stream_socket_get_name($master->getValue($server), false))))
+        ;
+
+        $server->on('connection', function ($conn) use ($mock) {
+            $mock($conn->getRemoteAddress());
+        });
+        $loop->tick();
     }
 
-    public function testCloseConnectionWillRemoveResourceFromLoopBeforeClosingResource()
+    public function remoteAddressProvider()
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM does not support socket operation on test memory stream');
-        }
+        return array(
+            array('192.168.1.120', '192.168.1.120:12345')
+          , array('9999:0000:aaaa:bbbb:cccc:dddd:eeee:ffff', '[9999:0000:aaaa:bbbb:cccc:dddd:eeee:ffff]:12345')
+          , array('10.0.0.1', '10.0.0.1:80')
+        );
+    }
 
-        $resource = fopen('php://memory', 'r+');
-        $loop = $this->getMockBuilder('React\EventLoop\LoopInterface')->getMock();
-        $loop->expects($this->once())->method('addWriteStream')->with($resource);
+    /**
+     * @dataProvider remoteAddressProvider
+     * @covers React\Socket\Connection::parseAddress
+     */
+    public function testParseAddress($expected, $given)
+    {
+        $class  = new \ReflectionClass('React\\Socket\\Connection');
+        $method = $class->getMethod('parseAddress');
+        $method->setAccessible(true);
 
-        $onRemove = null;
-        $loop->expects($this->once())->method('removeWriteStream')->with($this->callback(function ($param) use (&$onRemove) {
-            $onRemove = is_resource($param);
-            return true;
-        }));
+        $socket = fopen('php://temp', 'r');
+        $loop   = $this->createLoopMock();
 
-        $connection = new Connection($resource, $loop);
-        $connection->write('test');
-        $connection->close();
+        $conn = new Connection($socket, $loop);
+        $result = $method->invokeArgs($conn, array($given));
 
-        $this->assertTrue($onRemove);
-        $this->assertFalse(is_resource($resource));
+        $this->assertEquals($expected, $result);
+    }
+
+    private function createLoopMock()
+    {
+        return $this->getMock('React\EventLoop\LoopInterface');
     }
 }

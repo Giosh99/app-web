@@ -11,20 +11,17 @@
 
 namespace Symfony\Component\Routing\Tests;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
-use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
-class RouteCollectionBuilderTest extends TestCase
+class RouteCollectionBuilderTest extends \PHPUnit_Framework_TestCase
 {
     public function testImport()
     {
-        $resolvedLoader = $this->getMockBuilder('Symfony\Component\Config\Loader\LoaderInterface')->getMock();
-        $resolver = $this->getMockBuilder('Symfony\Component\Config\Loader\LoaderResolverInterface')->getMock();
+        $resolvedLoader = $this->getMock('Symfony\Component\Config\Loader\LoaderInterface');
+        $resolver = $this->getMock('Symfony\Component\Config\Loader\LoaderResolverInterface');
         $resolver->expects($this->once())
             ->method('resolve')
             ->with('admin_routing.yml', 'yaml')
@@ -41,7 +38,7 @@ class RouteCollectionBuilderTest extends TestCase
             ->with('admin_routing.yml', 'yaml')
             ->will($this->returnValue($expectedCollection));
 
-        $loader = $this->getMockBuilder('Symfony\Component\Config\Loader\LoaderInterface')->getMock();
+        $loader = $this->getMock('Symfony\Component\Config\Loader\LoaderInterface');
         $loader->expects($this->any())
             ->method('getResolver')
             ->will($this->returnValue($resolver));
@@ -61,18 +58,7 @@ class RouteCollectionBuilderTest extends TestCase
         $this->assertCount(1, $addedCollection->getResources());
 
         // make sure the routes were imported into the top-level builder
-        $routeCollection = $routes->build();
         $this->assertCount(1, $routes->build());
-        $this->assertCount(1, $routeCollection->getResources());
-    }
-
-    public function testImportAddResources()
-    {
-        $routeCollectionBuilder = new RouteCollectionBuilder(new YamlFileLoader(new FileLocator(array(__DIR__.'/Fixtures/'))));
-        $routeCollectionBuilder->import('file_resource.yml');
-        $routeCollection = $routeCollectionBuilder->build();
-
-        $this->assertCount(1, $routeCollection->getResources());
     }
 
     /**
@@ -103,7 +89,7 @@ class RouteCollectionBuilderTest extends TestCase
         $importedCollection->add('imported_route1', new Route('/imported/foo1'));
         $importedCollection->add('imported_route2', new Route('/imported/foo2'));
 
-        $loader = $this->getMockBuilder('Symfony\Component\Config\Loader\LoaderInterface')->getMock();
+        $loader = $this->getMock('Symfony\Component\Config\Loader\LoaderInterface');
         // make this loader able to do the import - keeps mocking simple
         $loader->expects($this->any())
             ->method('supports')
@@ -266,7 +252,7 @@ class RouteCollectionBuilderTest extends TestCase
 
     public function testFlushSetsPrefixedWithMultipleLevels()
     {
-        $loader = $this->getMockBuilder('Symfony\Component\Config\Loader\LoaderInterface')->getMock();
+        $loader = $this->getMock('Symfony\Component\Config\Loader\LoaderInterface');
         $routes = new RouteCollectionBuilder($loader);
 
         $routes->add('homepage', 'MainController::homepageAction', 'homepage');
@@ -334,31 +320,5 @@ class RouteCollectionBuilderTest extends TestCase
         $collection = $routes->build();
         // there are 2 routes (i.e. with non-conflicting names)
         $this->assertCount(3, $collection->all());
-    }
-
-    public function testAddsThePrefixOnlyOnceWhenLoadingMultipleCollections()
-    {
-        $firstCollection = new RouteCollection();
-        $firstCollection->add('a', new Route('/a'));
-
-        $secondCollection = new RouteCollection();
-        $secondCollection->add('b', new Route('/b'));
-
-        $loader = $this->getMockBuilder('Symfony\Component\Config\Loader\LoaderInterface')->getMock();
-        $loader->expects($this->any())
-            ->method('supports')
-            ->will($this->returnValue(true));
-        $loader
-            ->expects($this->any())
-            ->method('load')
-            ->will($this->returnValue(array($firstCollection, $secondCollection)));
-
-        $routeCollectionBuilder = new RouteCollectionBuilder($loader);
-        $routeCollectionBuilder->import('/directory/recurse/*', '/other/', 'glob');
-        $routes = $routeCollectionBuilder->build()->all();
-
-        $this->assertCount(2, $routes);
-        $this->assertEquals('/other/a', $routes['a']->getPath());
-        $this->assertEquals('/other/b', $routes['b']->getPath());
     }
 }

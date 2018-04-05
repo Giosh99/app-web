@@ -1,20 +1,13 @@
 {
     "name": "react/socket",
-    "description": "Async, streaming plaintext TCP/IP and secure TLS socket server and client connections for ReactPHP",
-    "keywords": ["async", "socket", "stream", "connection", "ReactPHP"],
+    "description": "Library for building an evented socket server.",
+    "keywords": ["socket"],
     "license": "MIT",
     "require": {
         "php": ">=5.3.0",
-        "evenement/evenement": "^3.0 || ^2.0 || ^1.0",
-        "react/dns": "^0.4.13",
-        "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3.5",
-        "react/stream": "^1.0 || ^0.7.1",
-        "react/promise": "^2.1 || ^1.2",
-        "react/promise-timer": "~1.0"
-    },
-    "require-dev": {
-        "clue/block-react": "^1.2",
-        "phpunit/phpunit": "^6.4 || ^5.7 || ^4.8.35"
+        "evenement/evenement": "~2.0|~1.0",
+        "react/event-loop": "0.4.*|0.3.*",
+        "react/stream": "0.4.*|0.3.*"
     },
     "autoload": {
         "psr-4": {
@@ -24,6 +17,11 @@
     "autoload-dev": {
         "psr-4": {
             "React\\Tests\\Socket\\": "tests"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.4-dev"
         }
     }
 }

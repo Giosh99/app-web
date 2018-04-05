@@ -2,6 +2,7 @@
 
 namespace React\Tests\Stream;
 
+use React\Stream\ReadableStream;
 use React\Stream\ThroughStream;
 
 /**
@@ -9,24 +10,6 @@ use React\Stream\ThroughStream;
  */
 class ThroughStreamTest extends TestCase
 {
-    /**
-     * @test
-     * @expectedException InvalidArgumentException
-     */
-    public function itShouldRejectInvalidCallback()
-    {
-        new ThroughStream(123);
-    }
-
-    /** @test */
-    public function itShouldReturnTrueForAnyDataWrittenToIt()
-    {
-        $through = new ThroughStream();
-        $ret = $through->write('foo');
-
-        $this->assertTrue($ret);
-    }
-
     /** @test */
     public function itShouldEmitAnyDataWrittenToIt()
     {
@@ -36,108 +19,15 @@ class ThroughStreamTest extends TestCase
     }
 
     /** @test */
-    public function itShouldEmitAnyDataWrittenToItPassedThruFunction()
-    {
-        $through = new ThroughStream('strtoupper');
-        $through->on('data', $this->expectCallableOnceWith('FOO'));
-        $through->write('foo');
-    }
-
-    /** @test */
-    public function itShouldEmitAnyDataWrittenToItPassedThruCallback()
-    {
-        $through = new ThroughStream('strtoupper');
-        $through->on('data', $this->expectCallableOnceWith('FOO'));
-        $through->write('foo');
-    }
-
-    /** @test */
-    public function itShouldEmitErrorAndCloseIfCallbackThrowsException()
-    {
-        $through = new ThroughStream(function () {
-            throw new \RuntimeException();
-        });
-        $through->on('error', $this->expectCallableOnce());
-        $through->on('close', $this->expectCallableOnce());
-        $through->on('data', $this->expectCallableNever());
-        $through->on('end', $this->expectCallableNever());
-
-        $through->write('foo');
-
-        $this->assertFalse($through->isReadable());
-        $this->assertFalse($through->isWritable());
-    }
-
-    /** @test */
-    public function itShouldEmitErrorAndCloseIfCallbackThrowsExceptionOnEnd()
-    {
-        $through = new ThroughStream(function () {
-            throw new \RuntimeException();
-        });
-        $through->on('error', $this->expectCallableOnce());
-        $through->on('close', $this->expectCallableOnce());
-        $through->on('data', $this->expectCallableNever());
-        $through->on('end', $this->expectCallableNever());
-
-        $through->end('foo');
-
-        $this->assertFalse($through->isReadable());
-        $this->assertFalse($through->isWritable());
-    }
-
-    /** @test */
-    public function itShouldReturnFalseForAnyDataWrittenToItWhenPaused()
-    {
-        $through = new ThroughStream();
-        $through->pause();
-        $ret = $through->write('foo');
-
-        $this->assertFalse($ret);
-    }
-
-    /** @test */
-    public function itShouldEmitDrainOnResumeAfterReturnFalseForAnyDataWrittenToItWhenPaused()
-    {
-        $through = new ThroughStream();
-        $through->pause();
-        $through->write('foo');
-
-        $through->on('drain', $this->expectCallableOnce());
-        $through->resume();
-    }
-
-    /** @test */
-    public function itShouldReturnTrueForAnyDataWrittenToItWhenResumedAfterPause()
-    {
-        $through = new ThroughStream();
-        $through->on('drain', $this->expectCallableNever());
-        $through->pause();
-        $through->resume();
-        $ret = $through->write('foo');
-
-        $this->assertTrue($ret);
-    }
-
-    /** @test */
     public function pipingStuffIntoItShouldWork()
     {
-        $readable = new ThroughStream();
+        $readable = new ReadableStream();
 
         $through = new ThroughStream();
         $through->on('data', $this->expectCallableOnceWith('foo'));
 
         $readable->pipe($through);
         $readable->emit('data', array('foo'));
-    }
-
-    /** @test */
-    public function endShouldEmitEndAndClose()
-    {
-        $through = new ThroughStream();
-        $through->on('data', $this->expectCallableNever());
-        $through->on('end', $this->expectCallableOnce());
-        $through->on('close', $this->expectCallableOnce());
-        $through->end();
     }
 
     /** @test */
@@ -163,53 +53,6 @@ class ThroughStreamTest extends TestCase
     }
 
     /** @test */
-    public function endTwiceShouldOnlyEmitOnce()
-    {
-        $through = new ThroughStream();
-        $through->on('data', $this->expectCallableOnce('first'));
-        $through->end('first');
-        $through->end('ignored');
-    }
-
-    /** @test */
-    public function writeAfterEndShouldReturnFalse()
-    {
-        $through = new ThroughStream();
-        $through->on('data', $this->expectCallableNever());
-        $through->end();
-
-        $this->assertFalse($through->write('foo'));
-    }
-
-    /** @test */
-    public function writeDataWillCloseStreamShouldReturnFalse()
-    {
-        $through = new ThroughStream();
-        $through->on('data', array($through, 'close'));
-
-        $this->assertFalse($through->write('foo'));
-    }
-
-    /** @test */
-    public function writeDataToPausedShouldReturnFalse()
-    {
-        $through = new ThroughStream();
-        $through->pause();
-
-        $this->assertFalse($through->write('foo'));
-    }
-
-    /** @test */
-    public function writeDataToResumedShouldReturnTrue()
-    {
-        $through = new ThroughStream();
-        $through->pause();
-        $through->resume();
-
-        $this->assertTrue($through->write('foo'));
-    }
-
-    /** @test */
     public function itShouldBeReadableByDefault()
     {
         $through = new ThroughStream();
@@ -224,12 +67,37 @@ class ThroughStreamTest extends TestCase
     }
 
     /** @test */
-    public function closeShouldCloseOnce()
+    public function pauseShouldDelegateToPipeSource()
+    {
+        $input = $this->getMock('React\Stream\ReadableStream', array('pause'));
+        $input
+            ->expects($this->once())
+            ->method('pause');
+
+        $through = new ThroughStream();
+        $input->pipe($through);
+
+        $through->pause();
+    }
+
+    /** @test */
+    public function resumeShouldDelegateToPipeSource()
+    {
+        $input = $this->getMock('React\Stream\ReadableStream', array('resume'));
+        $input
+            ->expects($this->once())
+            ->method('resume');
+
+        $through = new ThroughStream();
+        $input->pipe($through);
+
+        $through->resume();
+    }
+
+    /** @test */
+    public function closeShouldClose()
     {
         $through = new ThroughStream();
-
-        $through->on('close', $this->expectCallableOnce());
-
         $through->close();
 
         $this->assertFalse($through->isReadable());
@@ -237,12 +105,9 @@ class ThroughStreamTest extends TestCase
     }
 
     /** @test */
-    public function doubleCloseShouldCloseOnce()
+    public function doubleCloseShouldWork()
     {
         $through = new ThroughStream();
-
-        $through->on('close', $this->expectCallableOnce());
-
         $through->close();
         $through->close();
 
@@ -253,8 +118,7 @@ class ThroughStreamTest extends TestCase
     /** @test */
     public function pipeShouldPipeCorrectly()
     {
-        $output = $this->getMockBuilder('React\Stream\WritableStreamInterface')->getMock();
-        $output->expects($this->any())->method('isWritable')->willReturn(True);
+        $output = $this->getMock('React\Stream\WritableStreamInterface');
         $output
             ->expects($this->once())
             ->method('write')
@@ -263,5 +127,16 @@ class ThroughStreamTest extends TestCase
         $through = new ThroughStream();
         $through->pipe($output);
         $through->write('foo');
+    }
+
+    protected function expectCallableOnceWith($arg)
+    {
+        $mock = $this->createCallableMock();
+        $mock
+            ->expects($this->once())
+            ->method('__invoke')
+            ->with($arg);
+
+        return $mock;
     }
 }
