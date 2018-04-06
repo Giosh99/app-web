@@ -1,6 +1,7 @@
 <?php
 set_time_limit(0);
 
+import ('./vendor/autoload.php');
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\Server\IoServer;
@@ -32,6 +33,7 @@ require_once '../vendor/autoload.php';
                     $client->send($msg);
                 }
             }
+            echo $msg;
         }
         public function onError(ConnectionInterface $conn, \Exception $e) {
             echo "An error has occurred: {$e->getMessage()}\n";
