@@ -1,7 +1,6 @@
 <?php
 set_time_limit(0);
 
-require ('vendor/autoload.php');
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\Server\IoServer;
@@ -26,14 +25,14 @@ require_once '../vendor/autoload.php';
         public function onClose(ConnectionInterface $conn) {
             $this->clients->detach($conn);
         }
-        public function onMessage(ConnectionInterface $from, $mess) {
+        public function onMessage(ConnectionInterface $from, $mss) {
                 //send the message to all the other clients except the one who sent.
             foreach ($this->clients as $client) {
                 if ($from !== $client) {
                     $client->send($msg);
                 }
             }
-            echo $msg;
+            echo $mss;
         }
         public function onError(ConnectionInterface $conn, \Exception $e) {
             echo "An error has occurred: {$e->getMessage()}\n";
@@ -44,7 +43,7 @@ require_once '../vendor/autoload.php';
     }
 
 $server = IoServer::factory(
-	new HttpServer(new WsServer(new chat())),
+	new chat(),//new HttpServer(new WsServer(new chat())),
 	8080
 );
 $server->run();

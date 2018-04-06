@@ -20,7 +20,7 @@ window.onload = function() {
             activatedChat = this.id;
             httpRequest = new XMLHttpRequest();
             httpRequest.onreadystatechange = function() {
-
+                
             }
             httpRequest.open();
             httpRequest.send();
