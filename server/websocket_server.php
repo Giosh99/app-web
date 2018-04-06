@@ -1,7 +1,7 @@
 <?php
 set_time_limit(0);
 
-import ('./vendor/autoload.php');
+require ('vendor/autoload.php');
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\Server\IoServer;
