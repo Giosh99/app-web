@@ -44,7 +44,7 @@ function sec_session_start() {
         <?php require 'header.php' ?>
         <div class="d-flex flex-row w-100 p-0 m-0" id="content-part">
            <?php require 'sidebar.php' ?>
-          <!-- <php?/*php require 'view.php' */?> -->
+           <?php require 'view.php' ?> 
         </div>
     </div>
     </body>
