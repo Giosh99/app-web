@@ -4,37 +4,37 @@
 // sent for each connection and will print the average throughput once the
 // connection closes.
 //
-// $ php examples/91-benchmark-server.php 8000
+// $ php examples/03-benchmark.php 8000
 // $ telnet localhost 8000
-// $ echo hello world | nc -N localhost 8000
-// $ dd if=/dev/zero bs=1M count=1000 | nc -N localhost 8000
+// $ echo hello world | nc -v localhost 8000
+// $ dd if=/dev/zero bs=1M count=1000 | nc -v localhost 8000
 //
 // You can also run a secure TLS benchmarking server like this:
 //
-// $ php examples/91-benchmark-server.php tls://127.0.0.1:8000 examples/localhost.pem
+// $ php examples/03-benchmark.php 8000 examples/localhost.pem
 // $ openssl s_client -connect localhost:8000
 // $ echo hello world | openssl s_client -connect localhost:8000
 // $ dd if=/dev/zero bs=1M count=1000 | openssl s_client -connect localhost:8000
-//
-// You can also run a Unix domain socket (UDS) server benchmark like this:
-//
-// $ php examples/91-benchmark-server.php unix:///tmp/server.sock
-// $ nc -N -U /tmp/server.sock
-// $ dd if=/dev/zero bs=1M count=1000 | nc -N -U /tmp/server.sock
 
 use React\EventLoop\Factory;
 use React\Socket\Server;
 use React\Socket\ConnectionInterface;
+use React\Socket\SecureServer;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $loop = Factory::create();
 
-$server = new Server(isset($argv[1]) ? $argv[1] : 0, $loop, array(
-    'tls' => array(
-        'local_cert' => isset($argv[2]) ? $argv[2] : (__DIR__ . '/localhost.pem')
-    )
-));
+$server = new Server($loop);
+
+// secure TLS mode if certificate is given as second parameter
+if (isset($argv[2])) {
+    $server = new SecureServer($server, $loop, array(
+        'local_cert' => $argv[2]
+    ));
+}
+
+$server->listen(isset($argv[1]) ? $argv[1] : 0);
 
 $server->on('connection', function (ConnectionInterface $conn) use ($loop) {
     echo '[connected]' . PHP_EOL;
@@ -55,6 +55,6 @@ $server->on('connection', function (ConnectionInterface $conn) use ($loop) {
 
 $server->on('error', 'printf');
 
-echo 'Listening on ' . $server->getAddress() . PHP_EOL;
+echo 'bound to ' . $server->getPort() . PHP_EOL;
 
 $loop->run();

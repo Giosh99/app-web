@@ -1,16 +1,5 @@
-
 <?php
-        require 'content.php';
-        function printChats() {
-            global $arrayChats;
-            if(isset($arrayChats)) {
-                foreach($arrayChats as $value) {
-                    echo $value;
-                }
-            }
-            else echo "";           
-        }
-
+include 'sidebarLogic.php';
 ?>
 
 <div class="col-3 d-none d-md-block h-100 p-0 m-0" style="background-color:white !important;">

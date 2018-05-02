@@ -1,22 +1,6 @@
 <?php
 
-// Benchmark to measure throughput performance piping an input stream to an output stream.
-// This allows you to get an idea of how fast stream processing with PHP can be
-// and also to play around with differnt types of input and output streams.
-//
-// This example accepts a number of parameters to control the timeout (-t 1),
-// the input file (-i /dev/zero) and the output file (-o /dev/null).
-//
-// $ php examples/91-benchmark-throughput.php
-// $ php examples/91-benchmark-throughput.php -t 10 -o zero.bin
-// $ php examples/91-benchmark-throughput.php -t 60 -i zero.bin
-
 require __DIR__ . '/../vendor/autoload.php';
-
-if (DIRECTORY_SEPARATOR === '\\') {
-    fwrite(STDERR, 'Non-blocking console I/O not supported on Microsoft Windows' . PHP_EOL);
-    exit(1);
-}
 
 $args = getopt('i:o:t:');
 $if = isset($args['i']) ? $args['i'] : '/dev/zero';
@@ -30,16 +14,17 @@ $of = str_replace('/dev/fd/', 'php://fd/', $of);
 $loop = new React\EventLoop\StreamSelectLoop();
 
 // setup information stream
-$info = new React\Stream\WritableResourceStream(STDERR, $loop);
+$info = new React\Stream\Stream(STDERR, $loop);
+$info->pause();
 if (extension_loaded('xdebug')) {
     $info->write('NOTICE: The "xdebug" extension is loaded, this has a major impact on performance.' . PHP_EOL);
 }
 $info->write('piping from ' . $if . ' to ' . $of . ' (for max ' . $t . ' second(s)) ...'. PHP_EOL);
 
 // setup input and output streams and pipe inbetween
-$fh = fopen($if, 'r');
-$in = new React\Stream\ReadableResourceStream($fh, $loop);
-$out = new React\Stream\WritableResourceStream(fopen($of, 'w'), $loop);
+$in = new React\Stream\Stream(fopen($if, 'r'), $loop);
+$out = new React\Stream\Stream(fopen($of, 'w'), $loop);
+$out->pause();
 $in->pipe($out);
 
 // stop input stream in $t seconds
@@ -49,11 +34,11 @@ $timeout = $loop->addTimer($t, function () use ($in, &$bytes) {
 });
 
 // print stream position once stream closes
-$in->on('close', function () use ($fh, $start, $loop, $timeout, $info) {
+$in->on('close', function () use ($in, $start, $timeout, $info) {
     $t = microtime(true) - $start;
-    $loop->cancelTimer($timeout);
+    $timeout->cancel();
 
-    $bytes = ftell($fh);
+    $bytes = ftell($in->stream);
 
     $info->write('read ' . $bytes . ' byte(s) in ' . round($t, 3) . ' second(s) => ' . round($bytes / 1024 / 1024 / $t, 1) . ' MiB/s' . PHP_EOL);
     $info->write('peak memory usage of ' . round(memory_get_peak_usage(true) / 1024 / 1024, 1) . ' MiB' . PHP_EOL);
