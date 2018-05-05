@@ -58,6 +58,7 @@ window.onload = function() {
             user : "<?php echo $user->getName();?>",
             text: message,
             to: receiver,
+            id: 1,
         };
         wbSocket.send(JSON.stringify(msg));
     }
@@ -75,12 +76,18 @@ window.onload = function() {
         }
         wbSocket.send(JSON.stringify($connectionMessage));
     }
+    //formatting the message with some classes and css
+    var row = document.createElement("div");
+    row.className += "flex-row";
+    row.className += "d-flex";
+    var col = document.createElement("div");
+    col.className += "col-6"
     //it's fired when a message arrives from server
     wbSocket.onmessage = function(event) {
         console.log(event.data);
         var msg = JSON.parse(event.data);
         var message_list = message_list + msg.text;
-        document.getElementById("msg").innerHTML = message_list + "/////" + msg.text;
+        document.getElementById("msg").innerHTML = msg.text;
     }
     wbSocket.onerror = function() {
         wbSocket.close();

@@ -39,11 +39,11 @@ class chats {
             $this->servername = 'localhost';
             $this->password = 'password';
             $this->databasename = 'sail';
-           $this->conn = mysqli_connect($this->servername,$this->username,$this->password, $this->databasename);
+        /*   $this->conn = \mysqli_connect($this->servername,$this->username,$this->password, $this->databasename);
             if(!$this->conn) {
                     echo 'fkg error';
                 die();
-            }
+            } */
             $this->arrayChats = Array();
         }
 
@@ -118,17 +118,18 @@ class user {
 
 class database {
         private $connection;
-        private $stm_add_message_into_message;
-        private $stm_add_message_into_message_references;
-        private $stm_load_messages;
+       // private $stm_add_message_into_message;
+       // private $stm_add_message_into_message_references;
+       // private $stm_load_messages;
 
         private function connectToDatabase() {
                 $localhost = 'localhost';
                 $user = 'root';
                 $password = 'password';
                 $database = 'sail';
-                $this->connection = new mysqli($localhost, $user, $password, $database);
+                $this->connection = new \mysqli($localhost, $user, $password, $database);
                 if ($this->getConnection()->connect_error) {
+                        echo 'dioporvo';
                         die("Connection failed: " . $connection->connect_error);
                 }
         }
@@ -138,27 +139,30 @@ class database {
         private function setConnection($conn) {
                 $this->connection = $conn;
         }
-        public function AddMessage($senderId, $receiverId, $message) {
+        public function AddMessage($senderId, $receiverId, $messageReceived) {
+              /*  $stm_add_message = $this->connection->prepare("INSERT INTO messages(message) values(?);");
+                $stm_add_message->bind_param("s",$message);
+                $stm_add_message_into_message_references = $this->connection->prepare("INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values(?,?,?)");
+                $stm_add_message_into_message_references->bind_param("iis", $sender, $receiver, $messageId);*/
 
-                $this->stm_add_message_into_message->execute();
-                $this->stm_add_message_into_message_references->execute();
+                $sender = (int)$senderId;
+                $receiver = (int)$receiverId;
+                $message = (string)$messageReceived['text'];
+                $messageId = (int) $messageReceived['id'];
+              /*  $this->stm_add_message_into_message->execute();
+                $this->stm_add_message_into_message_references->execute();*/
+                $this->connection->query('INSERT INTO messages(Message) values("'.$message.'")');
+                $this->connection->query('INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values('.$sender.','.$receiver.','.$messageId.')');
+                $this->connection->query('INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values('.$receiver.','.$sender.','.$messageId.')');
         }
         public function getMessages($user) {
 
         }
-        private function prepareAddMessageQuery() {
-                echo "si";
-                $this->stm_add_message = "INSERT INTO messages(message) values(?)";
-                $this->stm_add_message->bind_param("s",$message);
-                $this->stm_add_message_into_message_references = "INSERT INTO message_references(Sender_UserId, Receiver_UserId, MessageId) values(?,?,?)";
-                $this->stm_add_message_into_message_references->bind_param("iis", $senderId, $receiverId, $message);
-        }
         private function prepareLoadMessagesQuery() {
-
+                //load messages
         }
         public function __construct() {
                 $this->connectToDatabase();
-                $this->prepareAddMessageQuery();
                 $this->prepareLoadMessagesQuery();
         }
 }

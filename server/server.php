@@ -19,7 +19,6 @@ class server implements MessageComponentInterface {
     public function __construct() {
         $this->clients = Array(); 
         $this->database = new classes\database();
-        echo "orcodio";
     }
     public function onMessage(ConnectionInterface $conn, $message) {
         $message = json_decode($message,true);
@@ -30,6 +29,7 @@ class server implements MessageComponentInterface {
         switch($message['action']) {
             case self::ACTION_USER_CONNECTED:
                 $this->clients[$message['personal_id']] = Array('connection'=>$conn, 'to' => "");
+
                 echo 'connection estabilished';
                 break;
             case self::ACTION_IDENTIFIED_USER:
@@ -51,18 +51,9 @@ class server implements MessageComponentInterface {
             $connectionTo = $receiver['connection'];
             $message = json_encode($message);
             $connectionTo->send($message);
-            $bool = 'trtrt';
-            if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) { 
-                echo 'We don\'t have mysqli!!!'; 
-            } else { 
-                echo 'Phew we have it!'; 
-            }
-            if(isset($this->database)) {
-                $bool = 'bool';
-               $bool =  $this->database->AddMessage($from,$to, $message);
-            }
-            echo $bool;
+            $message = json_decode($message, true);
         }
+        $this->database->AddMessage($from,$to, $message);
     }
     public function findClient($id) {
         if(isset($this->clients[$id])) {
@@ -72,6 +63,10 @@ class server implements MessageComponentInterface {
             echo 'client doesnt exist';
         }
     }
+    public function LoadMessages() {
+        
+    }
+
 
     public function onOpen(ConnectionInterface $conn) {
         
