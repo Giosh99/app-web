@@ -172,11 +172,11 @@ html {
   padding: 1vh;
   margin: 5px 10px 0;
   border-radius: 10px;
-  color: #1adda4;
-  font-size: 2vh; }
+  color: #000000;
+  font-size: 1.5vh; }
 
 .friend .chat-message {
-  background: #1adda4; }
+ /* background: #1adda4; */}
 
 .self .chat-message {
   order: -1; }

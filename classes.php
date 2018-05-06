@@ -129,7 +129,6 @@ class database {
                 $database = 'sail';
                 $this->connection = new \mysqli($localhost, $user, $password, $database);
                 if ($this->getConnection()->connect_error) {
-                        echo 'dioporvo';
                         die("Connection failed: " . $connection->connect_error);
                 }
         }
@@ -139,19 +138,19 @@ class database {
         private function setConnection($conn) {
                 $this->connection = $conn;
         }
-        public function AddMessage($senderId, $receiverId, $messageReceived) {
+        public function AddMessage($message) {
               /*  $stm_add_message = $this->connection->prepare("INSERT INTO messages(message) values(?);");
                 $stm_add_message->bind_param("s",$message);
                 $stm_add_message_into_message_references = $this->connection->prepare("INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values(?,?,?)");
                 $stm_add_message_into_message_references->bind_param("iis", $sender, $receiver, $messageId);*/
-
-                $sender = (int)$senderId;
-                $receiver = (int)$receiverId;
-                $message = (string)$messageReceived['text'];
-                $messageId = (int) $messageReceived['id'];
+                $messageDecoded = json_decode($message, true);
+                $sender = (int)$messageDecoded['personal_id'];
+                $receiver = (int)$messageDecoded['to'];
+                $textMessage = (string)$messageDecoded['text'];
+                $messageId = (int) $messageDecoded['id'];
               /*  $this->stm_add_message_into_message->execute();
                 $this->stm_add_message_into_message_references->execute();*/
-                $this->connection->query('INSERT INTO messages(Message) values("'.$message.'")');
+                $this->connection->query('INSERT INTO messages(Message) values("'.$textMessage.'")');
                 $this->connection->query('INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values('.$sender.','.$receiver.','.$messageId.')');
                 $this->connection->query('INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values('.$receiver.','.$sender.','.$messageId.')');
         }

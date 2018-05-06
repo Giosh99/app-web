@@ -29,31 +29,31 @@ class server implements MessageComponentInterface {
         switch($message['action']) {
             case self::ACTION_USER_CONNECTED:
                 $this->clients[$message['personal_id']] = Array('connection'=>$conn, 'to' => "");
-
-                echo 'connection estabilished';
+                // chiedere a prof 
+                echo 'connection estabilished \n';
                 break;
             case self::ACTION_IDENTIFIED_USER:
                 $this->clients[$message['personal_id']]["to"] = $message['to'];
                 break;
             case self::ACTION_MESSAGE_RECEIVED:
-                $this->sendMessageToClient($message['personal_id'],$message);
+                $this->sendMessageToClient($message);
                 break;
         }
 
 
     }
 
-    public function sendMessageToClient($from, $message) {
+    public function sendMessageToClient($message) {
+        $from = $message['personal_id'];
         $to = $this->clients[$from]['to'];
-        
+        $message = json_encode($message);
         $receiver = $this->findClient($to);
         if(isset($receiver)) {
-            $connectionTo = $receiver['connection'];
-            $message = json_encode($message);
-            $connectionTo->send($message);
-            $message = json_decode($message, true);
+            $connectionReceiver = $receiver['connection'];
+            $connectionReceiver->send($message);
         }
-        $this->database->AddMessage($from,$to, $message);
+        $this->clients[$from]['connection']->send($message);
+        $this->database->AddMessage($message);
     }
     public function findClient($id) {
         if(isset($this->clients[$id])) {
@@ -63,7 +63,7 @@ class server implements MessageComponentInterface {
             echo 'client doesnt exist';
         }
     }
-    public function LoadMessages() {
+    public function LoadMessages($id) {
         
     }
 
@@ -75,7 +75,7 @@ class server implements MessageComponentInterface {
         foreach($this->clients as $client) {
             if($client['connection'] == $conn) {
                 unset($client);
-                echo "disconnected";
+                echo 'disconnected \n';
             }
         }
     }

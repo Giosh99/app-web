@@ -7,10 +7,14 @@ include 'thisUserInformations.php';
 
 <script>
 window.onload = function() {
-    var x = <?php echo $n_chats ?>;
-    var activatedChat = "";
-    var receiver;
-    for(var a = 0; a< x; a++) {
+    // x is the number of chats in the database;
+    let x = <?php echo $n_chats ?>;
+    // 
+    let activatedChat = "";
+    let receiver;
+
+    /*-----------------Add event listener for all the chats appeard in the database-----------*/
+    for(let a = 0; a< x; a++) {
 
         document.getElementById(a).addEventListener("click",clicked_message_box,false);
 
@@ -22,12 +26,12 @@ window.onload = function() {
             activatedChat = this.id;
             
             sendDestinationMessage(this.id);
-    }
+        }
     }
 
     function sendDestinationMessage(id) {
         console.log(id);
-        var xhttp = new XMLHttpRequest();
+        let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 console.log(this.responseText);
@@ -50,9 +54,9 @@ window.onload = function() {
         ///TODO
         //i campi dell'oggetto json devono essere quelli presenti nella tabella messages.
 
-        var message = document.getElementById("textarea").value;
+        let message = document.getElementById("textarea").value;
         document.getElementById("textarea").value = "";
-        var msg = {
+        let msg = {
             action: 'message',
             personal_id :<?php echo $user->getUserId();?>,
             user : "<?php echo $user->getName();?>",
@@ -77,17 +81,64 @@ window.onload = function() {
         wbSocket.send(JSON.stringify($connectionMessage));
     }
     //formatting the message with some classes and css
-    var row = document.createElement("div");
-    row.className += "flex-row";
-    row.className += "d-flex";
-    var col = document.createElement("div");
-    col.className += "col-6"
+    function createRowForMessageSent(text) {
+        let row = document.createElement("div");
+        row.className += "flex-row d-flex ml-6";
+        let col = document.createElement("div");
+        col.className += "offset-4 col-6";
+        let subRow = document.createElement("div");
+        subRow.className+= "flex-row d-flex mt-2";
+        let chat = document.createElement("div");
+        chat.className += "chat self col-12";
+        let userFoto = document.createElement("div");
+        userFoto.className += "user-photo";
+        let chatMessage = document.createElement("p");
+        chatMessage.className += "chat-message wrap";
+        let textNode = document.createTextNode(text);
+        // append elements
+        chatMessage.appendChild(textNode);
+        chat.appendChild(chatMessage);
+        chat.appendChild(userFoto);
+        subRow.appendChild(chat);
+        col.appendChild(subRow);
+        row.appendChild(col);
+        return row;
+    }
+
+    function createRowForMessageReceived(text) {
+        let row = document.createElement("div");
+        row.className += "flex-row d-flex mr-6";
+        let col = document.createElement("div");
+        col.className += "col-6 offset-4";
+        let subRow = document.createElement("div");
+        subRow.className+= "flex-row d-flex mt-2";
+        let chat = document.createElement("div");
+        chat.className += "chat friend col-12";
+        let userFoto = document.createElement("div");
+        userFoto.className += "user-photo";
+        let chatMessage = document.createElement("p");
+        chatMessage.className +="chat-message wrap";
+        let textNode = document.createTextNode(text);
+        // append elements
+        chatMessage.appendChild(textNode);
+        chat.appendChild(userFoto);
+        chat.appendChild(chatMessage);
+        subRow.appendChild(chat);
+        col.appendChild(subRow);
+        row.appendChild(col);
+        return row;
+    }
     //it's fired when a message arrives from server
     wbSocket.onmessage = function(event) {
         console.log(event.data);
-        var msg = JSON.parse(event.data);
-        var message_list = message_list + msg.text;
-        document.getElementById("msg").innerHTML = msg.text;
+        let msg = JSON.parse(event.data);
+        if(msg.personal_id == <?php echo $user->getUserId();?>) {
+            row = createRowForMessageSent(msg.text);
+        }
+        else {
+            row = createRowForMessageReceived();
+        }
+        document.getElementById("msg").appendChild(row);
     }
     wbSocket.onerror = function() {
         wbSocket.close();
