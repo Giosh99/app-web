@@ -1,0 +1,17 @@
+<script>
+    class chat {
+        constructor(name, id) {
+            this.name = name;
+            this.id = id;
+            this.messages = new Array();
+        }
+
+        addMessage(message) {
+            this.messages.push(message);
+        }
+
+        returnMessages() {
+            return this.messages;
+        }
+    }
+</script>

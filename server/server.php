@@ -29,7 +29,7 @@ class server implements MessageComponentInterface {
         switch($message['action']) {
             case self::ACTION_USER_CONNECTED:
                 $this->clients[$message['personal_id']] = Array('connection'=>$conn, 'to' => "");
-                // chiedere a prof 
+                // 
                 echo 'connection estabilished \n';
                 break;
             case self::ACTION_IDENTIFIED_USER:

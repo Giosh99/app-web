@@ -2,8 +2,6 @@
 include 'thisUserInformations.php';
 ?>
 <html lang="en">
-        <footer>
-    </footer>
 
 <script>
 window.onload = function() {
@@ -12,6 +10,32 @@ window.onload = function() {
     // 
     let activatedChat = "";
     let receiver;
+    let viewChanged = false;
+
+    if(activatedChat == "") {
+        loadViewForUnclickedChat();
+    }
+
+    function loadViewForUnclickedChat() {
+        // display none on the normal view
+        document.getElementById("view").style.display = "none";
+        parent = document.getElementById("content-part");
+
+        let column = document.createElement("div");
+        column.className += "col-9 align-self-end h-100 w-100 p-0";
+        column.setAttribute("id", "firstLoadView")
+        let row = document.createElement("div");
+        row.className += "flex-row d-flex w-100 h-100 justify-content-center align-items-center";
+        let node = document.createElement("div");
+        node.className += "col text-center";
+        let textNode = document.createTextNode("Please select a chat to start messaging");
+        node.appendChild(textNode);
+        node.style.color = "rgb(179, 179, 203)";
+        row.appendChild(node);
+        column.appendChild(row);
+        column.style.backgroundColor = "white";
+        parent.appendChild(column);
+    }
 
     /*-----------------Add event listener for all the chats appeard in the database-----------*/
     for(let a = 0; a< x; a++) {
@@ -24,9 +48,20 @@ window.onload = function() {
             }
             document.getElementById(this.id).style.backgroundColor = "#009788";
             activatedChat = this.id;
-            
+            //change view
+            if(viewChanged != true) {
+                loadViewForClickedChat();
+            }
             sendDestinationMessage(this.id);
         }
+    }
+
+    function loadViewForClickedChat() {
+        parent = document.getElementById("content-part");
+        child = document.getElementById("firstLoadView");
+        parent.removeChild(child);
+        document.getElementById("view").style.display = "block"
+        viewChanged = true;
     }
 
     function sendDestinationMessage(id) {
@@ -53,17 +88,17 @@ window.onload = function() {
     function sendMessage() {
         ///TODO
         //i campi dell'oggetto json devono essere quelli presenti nella tabella messages.
-
         let message = document.getElementById("textarea").value;
         document.getElementById("textarea").value = "";
         let msg = {
             action: 'message',
-            personal_id :<?php echo $user->getUserId();?>,
+            personal_id :<?php echo $user->getUserId();?>,                                                            
             user : "<?php echo $user->getName();?>",
             text: message,
             to: receiver,
             id: 1,
         };
+        console.log(<?php echo $user->getUserId() ?>);
         wbSocket.send(JSON.stringify(msg));
     }
 

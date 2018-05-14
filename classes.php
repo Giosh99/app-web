@@ -118,9 +118,6 @@ class user {
 
 class database {
         private $connection;
-       // private $stm_add_message_into_message;
-       // private $stm_add_message_into_message_references;
-       // private $stm_load_messages;
 
         private function connectToDatabase() {
                 $localhost = 'localhost';
@@ -139,23 +136,28 @@ class database {
                 $this->connection = $conn;
         }
         public function AddMessage($message) {
-              /*  $stm_add_message = $this->connection->prepare("INSERT INTO messages(message) values(?);");
-                $stm_add_message->bind_param("s",$message);
+
+                $stm_add_message = $this->connection->prepare("INSERT INTO messages(Message) values(?)");
                 $stm_add_message_into_message_references = $this->connection->prepare("INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values(?,?,?)");
-                $stm_add_message_into_message_references->bind_param("iis", $sender, $receiver, $messageId);*/
+
                 $messageDecoded = json_decode($message, true);
                 $sender = (int)$messageDecoded['personal_id'];
                 $receiver = (int)$messageDecoded['to'];
                 $textMessage = (string)$messageDecoded['text'];
                 $messageId = (int) $messageDecoded['id'];
-              /*  $this->stm_add_message_into_message->execute();
-                $this->stm_add_message_into_message_references->execute();*/
-                $this->connection->query('INSERT INTO messages(Message) values("'.$textMessage.'")');
-                $this->connection->query('INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values('.$sender.','.$receiver.','.$messageId.')');
-                $this->connection->query('INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values('.$receiver.','.$sender.','.$messageId.')');
+
+                $stm_add_message->bind_param("s",$textMessage);
+                $stm_add_message_into_message_references->bind_param("iii", $sender, $receiver, $messageId);
+
+                $stm_add_message->execute();
+                $stm_add_message_into_message_references->execute();
+
+                $stm_add_message_into_message_references->bind_param("iii", $receiver, $sender, $messageId);
+                $stm_add_message_into_message_references->execute();
+
         }
         public function getMessages($user) {
-
+                $query = "SELECT messages";
         }
         private function prepareLoadMessagesQuery() {
                 //load messages

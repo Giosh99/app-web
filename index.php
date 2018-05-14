@@ -47,6 +47,6 @@ function sec_session_start() {
            <?php require 'view.php' ?> 
         </div>
     </div>
-    </body>
+</body>
     
     <?php require 'footer.php' ?>
