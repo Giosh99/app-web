@@ -1,7 +1,3 @@
-<?php
-include 'sidebarLogic.php';
-?>
-
 <div class="col-3 d-none d-md-block h-100 p-0 m-0" style="background-color:white !important;">
 <div class="flex-row flex-row" style="height:7vh">
     <div class="col-12 m-0 p-0" style="height:2vh"></div> <!-- margine -->
@@ -12,8 +8,7 @@ include 'sidebarLogic.php';
 </div>
 
 <div class="d-flex flex-row m-0 p-0" id="scrollbar" style="overflow-y:scroll; height:85vh;">
-    <div class="col-12 d-none d-sm-block p-0 m-0"  style="background-color:white !important;">
-        <?php printChats() ?>
+    <div class="col-12 d-none d-sm-block p-0 m-0"  id="sidebar" style="background-color:white !important;">
     </div>
 </div>
 </div>

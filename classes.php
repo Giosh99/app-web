@@ -35,15 +35,6 @@ class chats {
         public $arrayChats;
 
         public function __construct() {
-            $this->username = 'root';
-            $this->servername = 'localhost';
-            $this->password = 'password';
-            $this->databasename = 'sail';
-        /*   $this->conn = \mysqli_connect($this->servername,$this->username,$this->password, $this->databasename);
-            if(!$this->conn) {
-                    echo 'fkg error';
-                die();
-            } */
             $this->arrayChats = Array();
         }
 
@@ -60,10 +51,10 @@ class chats {
 class user {
         private $userId;
         private $name;
-        private $surname;
         private $mail;
         private $img;
-        private $messages;
+        private $connection;
+        private $speaker;
 
         public function getUserId() {
                 return $this->userId;
@@ -71,21 +62,12 @@ class user {
         public function setUserId($id)  {
                 $this->userId = $id;
         }
-
         public function getName() {
                 return $this->name;
         }
         public function setName($name)  {
                 $this->name = $name;
         }
-
-        public function getSurname() {
-                return $this->surname;
-        }
-        public function setSurname($surname)  {
-                $this->surname = $surname;
-        }
-
         public function getMail() {
                 return $this->mail;
         }
@@ -98,73 +80,113 @@ class user {
         public function setImg($img)  {
                 $this->img = $img;
         }
-        public function getMessage($id) {
-                return $this->messages[$id];
+        public function getConnection() {
+                return $this->connection;
         }
-        public function setMessage($message)  {
-                array_push($this->messages, $message);
+        public function setConnection($conn) {
+                $this->connection = $conn;
         }
-
-        public function __construct($userId,$name,$surname, $mail, $img, $message) {
+        public function getSpeaker() {
+                return $this->speaker;
+        }
+        public function setSpeaker($speaker) {
+                $this->speaker = $speaker;
+        }
+        public function __construct($userId,$name,$mail, $img, $connection) {
                 $this->setUserId($userId);
                 $this->setName($name);
-                $this->setSurname($surname);
                 $this->setMail($mail);
                 $this->setImg($img);
-                $this->messages = Array();
-                $this->setMessage($message);
+                $this->setConnection($connection);
         }
 }
 
 class database {
-        private $connection;
+        public $connection;
 
         private function connectToDatabase() {
                 $localhost = 'localhost';
                 $user = 'root';
-                $password = 'password';
+                $password = '';
                 $database = 'sail';
                 $this->connection = new \mysqli($localhost, $user, $password, $database);
-                if ($this->getConnection()->connect_error) {
+                if ($this->connection->connect_error) {
+                        echo 'connection failed';
                         die("Connection failed: " . $connection->connect_error);
                 }
         }
-        public function getConnection() {
-                return $this->connection;
-        }
-        private function setConnection($conn) {
-                $this->connection = $conn;
-        }
+
         public function AddMessage($message) {
 
-                $stm_add_message = $this->connection->prepare("INSERT INTO messages(Message) values(?)");
-                $stm_add_message_into_message_references = $this->connection->prepare("INSERT INTO message_references(Sender_UserID, Reciver_UserID, MessageID) values(?,?,?)");
+                $stm_add_message = $this->connection->prepare("INSERT INTO messages(MessageID,Message, Direction, chatId ) values(?,?,?,?)");
 
                 $messageDecoded = json_decode($message, true);
-                $sender = (int)$messageDecoded['personal_id'];
+                $sender = (int)$messageDecoded['userId'];
                 $receiver = (int)$messageDecoded['to'];
                 $textMessage = (string)$messageDecoded['text'];
                 $messageId = (int) $messageDecoded['id'];
 
-                $stm_add_message->bind_param("s",$textMessage);
-                $stm_add_message_into_message_references->bind_param("iii", $sender, $receiver, $messageId);
-
+                $chat = $this->getChatId($sender, $receiver);
+                $chatId = (int)$chat['ID'];
+                $date = date("l");
+                $stm_add_message->bind_param("isii",$messageId,$textMessage, $sender, $chat);
                 $stm_add_message->execute();
-                $stm_add_message_into_message_references->execute();
+                if($stm_add_message != true) {
+                        echo "error";
+                }
+        }
 
-                $stm_add_message_into_message_references->bind_param("iii", $receiver, $sender, $messageId);
-                $stm_add_message_into_message_references->execute();
+        private function getChatId($from, $to) {
+               // $stm_search_chat = $this->connection->prepare("SELECT ID FROM chat WHERE (Sender=? AND Receiver=?) OR (Sender=? AND Receiver=?)");
+                $sender = (int)$from;
+                $receiver = (int)$to;
+                $query = 'SELECT ID FROM chat WHERE (Sender='.$sender.' AND Receiver='.$receiver.') OR (Sender='.$receiver.' AND Receiver='.$sender.')';
+               // echo $receiver." ".$sender;
+                //$ReverseReceiver = $receiver;
+                //$ReverseSender = $sender;
+                //$stm_search_chat->bind_param("iiii",$sender,$receiver,$ReverseReceiver,$ReverseSender);
+                //$result = $stm_search_chat->execute();
+                $result = $this->connection->query($query);
+                if($result->num_rows > 0) {
+                        return $result->fetch_assoc();
+                }
+                else {
+                        echo "error in the select chat";
+                }
+        }
 
+        public function getChats($userId) {
+                $userId = (int)$userId;
+                $chats = Array();
+                $returningStatement = Array();
+                $query = 'SELECT Sender,Receiver FROM chat WHERE (Sender='.$userId.' OR Receiver='.$userId.')';
+                /*$stm_select_chats = $this->connection->prepare($query);
+                $stm_select_chats->bind_param("ii",$userId, $userId);
+                $result = $stm_select_chats->execute();*/
+                $result = $this->connection->query($query);
+                if($result->num_rows > 0) {
+                        while($row = $result->fetch_assoc()) {
+                                if($row['Sender'] == $userId) {
+                                        array_push($chats, $row['Receiver']);
+                                }
+                                else {
+                                        array_push($chats, $row['Sender']);
+                                }
+                        }
+                        foreach($chats as $chat) {
+                                $query = 'SELECT userId, user_name FROM users WHERE userId='.(int)$chat.'';
+                                $result = $this->connection->query($query);
+                                array_push($returningStatement, $result->fetch_assoc());
+                        }
+                        return $returningStatement;
+                }
+                else {
+                        return;
+                }
         }
-        public function getMessages($user) {
-                $query = "SELECT messages";
-        }
-        private function prepareLoadMessagesQuery() {
-                //load messages
-        }
+
         public function __construct() {
                 $this->connectToDatabase();
-                $this->prepareLoadMessagesQuery();
         }
 }
 ?>

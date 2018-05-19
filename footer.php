@@ -38,22 +38,20 @@ window.onload = function() {
     }
 
     /*-----------------Add event listener for all the chats appeard in the database-----------*/
-    for(let a = 0; a< x; a++) {
 
-        document.getElementById(a).addEventListener("click",clicked_message_box,false);
+        //document.getElementById(a).addEventListener("click",clicked_message_box,false);
 
-        function clicked_message_box() {
-            if(activatedChat != "") {
-                document.getElementById(activatedChat).style.backgroundColor = "white";
-            }
-            document.getElementById(this.id).style.backgroundColor = "#009788";
-            activatedChat = this.id;
-            //change view
-            if(viewChanged != true) {
-                loadViewForClickedChat();
-            }
-            sendDestinationMessage(this.id);
+    function clicked_message_box() {
+        if(activatedChat != "") {
+            document.getElementById(activatedChat).style.backgroundColor = "white";
         }
+        document.getElementById(this.id).style.backgroundColor = "#009788";
+        activatedChat = this.id;
+            //change view
+        if(viewChanged != true) {
+            loadViewForClickedChat();
+        }
+        sendDestinationMessage(this.id);
     }
 
     function loadViewForClickedChat() {
@@ -66,21 +64,12 @@ window.onload = function() {
 
     function sendDestinationMessage(id) {
         console.log(id);
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(this.responseText);
-                receiver = this.responseText;
-                $message = {
-                    personal_id: <?php echo $user->getUserId();?>,
-                    action: 'to',
-                    to: receiver,
-                }
-                wbSocket.send(JSON.stringify($message));
-            }
-        };
-        xhttp.open("GET", 'sidebarLogic.php?id='+id+'', true);
-        xhttp.send();
+        $message = {
+            userId: <?php echo $user->getUserId();?>,
+            action: 'to',
+            to: id,
+        }
+        wbSocket.send(JSON.stringify($message));
     }
 
     document.getElementById("send").addEventListener("click",sendMessage,false );
@@ -92,8 +81,7 @@ window.onload = function() {
         document.getElementById("textarea").value = "";
         let msg = {
             action: 'message',
-            personal_id :<?php echo $user->getUserId();?>,                                                            
-            user : "<?php echo $user->getName();?>",
+            userId: <?php echo $user->getUserId();?>,
             text: message,
             to: receiver,
             id: 1,
@@ -111,7 +99,10 @@ window.onload = function() {
         console.log("connection estabilished");
         $connectionMessage = {
             action: 'connect',
-            personal_id: <?php echo $user->getUserId();?>,
+            userId: <?php echo $user->getUserId();?>,
+            name: "<?php echo $user->getName(); ?>",
+            mail: "<?php echo $user->getMail();?>",
+            img: "<?php echo $user->getImg();?>",
         }
         wbSocket.send(JSON.stringify($connectionMessage));
     }
@@ -163,17 +154,48 @@ window.onload = function() {
         row.appendChild(col);
         return row;
     }
+
+    function createRowForOpenedChat(name) {
+        let rowMessageBox = document.createElement("div");
+        rowMessageBox.className += "col-12 p-0 m-0 mt-1 mb-1 message_box";
+        let internalRow = document.createElement("div");
+        internalRow.className += "d-flex flex-row w-100 align-items-center";
+        internalRow.style.height = "5vh";
+        let imgSpace = document.createElement("div");
+        imgSpace.className += "col-3";
+        let usernameBox = document.createElement("div");
+        usernameBox.className += "col";
+        let username = document.createTextNode(name);
+        // append chil
+        usernameBox.appendChild(username);
+        internalRow.appendChild(usernameBox);
+        internalRow.appendChild(imgSpace);
+        rowMessageBox.appendChild(internalRow);
+        return rowMessageBox;
+    }
+
     //it's fired when a message arrives from server
     wbSocket.onmessage = function(event) {
         console.log(event.data);
         let msg = JSON.parse(event.data);
-        if(msg.personal_id == <?php echo $user->getUserId();?>) {
+        if(msg.type = 'chat') {
+            let parent = document.getElementById("sidebar");
+            for(i=0; i< msg['chats'].length; i++) {
+                let element = createRowForOpenedChat(msg['chats'][i].user_name);
+                element.setAttribute("id",msg['chats'][i].userId);
+                element.addEventListener("click",clicked_message_box,false);
+                parent.appendChild(element);
+            }
+        }
+        else {
+            if(msg.userId == <?php echo $user->getUserId();?>) {
             row = createRowForMessageSent(msg.text);
         }
         else {
             row = createRowForMessageReceived();
         }
         document.getElementById("msg").appendChild(row);
+        }
     }
     wbSocket.onerror = function() {
         wbSocket.close();

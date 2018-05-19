@@ -1,14 +1,13 @@
 <?php
 use classes\user;
 
-    $userId = 1;
-    $name = "";
-    $surname = '';
+    $userId = 2;
+    $name = "Giosue";
+    $surname = 'Calgaro';
     $mail = '....';
     $img = '';
-    $messages = '';
     
-    $user = new classes\user($userId,$name,$surname, $mail, $img, $messages);
+    $user = new classes\user($userId,$name,$surname, $mail, $img);
     header("Location: index.php");
 
 
