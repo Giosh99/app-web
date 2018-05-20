@@ -1,17 +1,24 @@
 <?php
-include 'thisUserInformations.php';
+include 'classes.php';
+use classes\user;
+
+$userId = 2;
+$name = "Giosue";
+$surname = 'Calgaro';
+$mail = '....';
+$img = '';
+$connection = " ";
+$user = new classes\user($userId,$name,$mail, $img, $connection);
+
 ?>
-<html lang="en">
 
 <script>
 window.onload = function() {
-    // x is the number of chats in the database;
-    let x = <?php echo $n_chats ?>;
-    // 
     let activatedChat = "";
     let receiver;
     let viewChanged = false;
-
+    let c = <?php echo $user->getUserId(); ?>;
+    console.log(c);
     if(activatedChat == "") {
         loadViewForUnclickedChat();
     }
@@ -39,11 +46,10 @@ window.onload = function() {
 
     /*-----------------Add event listener for all the chats appeard in the database-----------*/
 
-        //document.getElementById(a).addEventListener("click",clicked_message_box,false);
-
     function clicked_message_box() {
         if(activatedChat != "") {
             document.getElementById(activatedChat).style.backgroundColor = "white";
+            document.getElementById(activatedChat).style.hover = "#faefef";
         }
         document.getElementById(this.id).style.backgroundColor = "#009788";
         activatedChat = this.id;
@@ -51,7 +57,13 @@ window.onload = function() {
         if(viewChanged != true) {
             loadViewForClickedChat();
         }
+        // mando le info della nuova chat
         sendDestinationMessage(this.id);
+        // tolgo i messaggi della chat precedente
+        var myNode = document.getElementById("msg");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
     }
 
     function loadViewForClickedChat() {
@@ -83,14 +95,13 @@ window.onload = function() {
             action: 'message',
             userId: <?php echo $user->getUserId();?>,
             text: message,
-            to: receiver,
             id: 1,
+            to: activatedChat,
+            type: 'message',
         };
         console.log(<?php echo $user->getUserId() ?>);
         wbSocket.send(JSON.stringify(msg));
     }
-
-
 
     // initialize the websocket
     var wbSocket = new WebSocket("ws://localhost:8080");
@@ -168,8 +179,8 @@ window.onload = function() {
         let username = document.createTextNode(name);
         // append chil
         usernameBox.appendChild(username);
-        internalRow.appendChild(usernameBox);
         internalRow.appendChild(imgSpace);
+        internalRow.appendChild(usernameBox);
         rowMessageBox.appendChild(internalRow);
         return rowMessageBox;
     }
@@ -178,29 +189,35 @@ window.onload = function() {
     wbSocket.onmessage = function(event) {
         console.log(event.data);
         let msg = JSON.parse(event.data);
-        if(msg.type = 'chat') {
+        console.log(msg);
+        if(msg.type == 'chat') {
+            console.log(" chat  arrived   ");
             let parent = document.getElementById("sidebar");
-            for(i=0; i< msg['chats'].length; i++) {
-                let element = createRowForOpenedChat(msg['chats'][i].user_name);
-                element.setAttribute("id",msg['chats'][i].userId);
+            console.log(msg['chats']);
+            msg['chats'].forEach(function(e) {
+                let element = createRowForOpenedChat(e.user_name);
+                element.setAttribute("id",e.userId);
                 element.addEventListener("click",clicked_message_box,false);
                 parent.appendChild(element);
-            }
+            }); 
         }
         else {
+        if(activatedChat == msg.to){
             if(msg.userId == <?php echo $user->getUserId();?>) {
             row = createRowForMessageSent(msg.text);
         }
         else {
-            row = createRowForMessageReceived();
+            row = createRowForMessageReceived(msg.text);
         }
         document.getElementById("msg").appendChild(row);
+        }
+        else {}
         }
     }
     wbSocket.onerror = function() {
         wbSocket.close();
     }
-};
+}
 
 </script>
 </html>

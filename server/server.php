@@ -48,7 +48,13 @@ class server implements MessageComponentInterface {
                 }
                 break;
             case self::ACTION_IDENTIFIED_USER:
-                $this->clients[$message['userId']]->setSpeaker($message['to']);
+                $client = $this->clients[$message['userId']];
+                $client->setSpeaker($message['to']);
+                echo $client->getSpeaker();
+                $messages = $this->database->getMessages($client);
+                foreach($messages as $message) {
+                    $conn->send(json_encode($message));
+                }
                 break;
             case self::ACTION_MESSAGE_RECEIVED:
                 $this->sendMessageToClient($message);
@@ -59,6 +65,7 @@ class server implements MessageComponentInterface {
     public function sendMessageToClient($message) {
         $from = $this->clients[$message['userId']];
         $to = $from->getSpeaker();
+        echo $to;
         $message = json_encode($message);
         $receiver = $this->findClient($to);
         if(isset($receiver)) {
@@ -66,7 +73,7 @@ class server implements MessageComponentInterface {
             $connectionReceiver->send($message);
         }
         $from->getConnection()->send($message);
-        $this->database->AddMessage($message);
+        $this->database->AddMessage($message,$to);
     }
 
     public function findClient($id) {

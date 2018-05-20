@@ -116,37 +116,38 @@ class database {
                 }
         }
 
-        public function AddMessage($message) {
+        public function AddMessage($message, $to) {
 
-                $stm_add_message = $this->connection->prepare("INSERT INTO messages(MessageID,Message, Direction, chatId ) values(?,?,?,?)");
-
+                $stm_add_message = $this->connection->prepare('INSERT INTO messages(Message, Direction, chatId ) values(?,?,?);');
                 $messageDecoded = json_decode($message, true);
+                
                 $sender = (int)$messageDecoded['userId'];
-                $receiver = (int)$messageDecoded['to'];
+                $receiver = (int)$to;
                 $textMessage = (string)$messageDecoded['text'];
                 $messageId = (int) $messageDecoded['id'];
 
                 $chat = $this->getChatId($sender, $receiver);
                 $chatId = (int)$chat['ID'];
                 $date = date("l");
-                $stm_add_message->bind_param("isii",$messageId,$textMessage, $sender, $chat);
+
+                $stm_add_message->bind_param("sii",$textMessage, $sender, $chatId);
                 $stm_add_message->execute();
-                if($stm_add_message != true) {
-                        echo "error";
-                }
         }
 
         private function getChatId($from, $to) {
                // $stm_search_chat = $this->connection->prepare("SELECT ID FROM chat WHERE (Sender=? AND Receiver=?) OR (Sender=? AND Receiver=?)");
                 $sender = (int)$from;
                 $receiver = (int)$to;
-                $query = 'SELECT ID FROM chat WHERE (Sender='.$sender.' AND Receiver='.$receiver.') OR (Sender='.$receiver.' AND Receiver='.$sender.')';
+                echo '  sender:'.$sender;
+                echo '  receiver: '.$receiver;
+                $query = "SELECT ID FROM chat WHERE (Sender='$sender' AND Receiver='$receiver') OR (Sender='$receiver' AND Receiver='$sender')";
                // echo $receiver." ".$sender;
                 //$ReverseReceiver = $receiver;
                 //$ReverseSender = $sender;
                 //$stm_search_chat->bind_param("iiii",$sender,$receiver,$ReverseReceiver,$ReverseSender);
                 //$result = $stm_search_chat->execute();
                 $result = $this->connection->query($query);
+                var_dump($result);
                 if($result->num_rows > 0) {
                         return $result->fetch_assoc();
                 }
@@ -183,6 +184,32 @@ class database {
                 else {
                         return;
                 }
+        }
+        public function getMessages($client) {
+                $messages = Array();
+                /*$stm_take_messages = $this->connection->prepare('SELECT MessageID,Message,Direction FROM messages WHERE chatId=?;');*/
+                $id = (int)$this->getChatId($client->getUserId(), $client->getSpeaker());
+                echo $id;
+                /*
+                echo $id;
+                $stm_take_messages->bind_param("i",$id);
+                $result = $stm_take_messages->execute();*/
+                $query = 'SELECT MessageID,Message,Direction FROM messages WHERE chatId='.$id.';';
+                $result = $this->connection->query($query);
+                if($result->num_rows>0) {
+                        while($row = $result->fetch_assoc()) {
+                                $msg = $this->trasformMessageToRightFormat($row, $client->getSpeaker());
+                                array_push($messages, $msg);
+                        }
+                }
+                return $messages;
+        }
+        private function trasformMessageToRightFormat($message, $to) {
+                $msg = Array();
+                $msg['userId'] = $message['Direction'];
+                $msg['text'] = $message['Message'];
+                $msg['to'] = $to;
+                return $msg;
         }
 
         public function __construct() {

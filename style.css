@@ -94,7 +94,8 @@ input[type=range]::-ms-track {
 
 .message_box:hover {
   cursor: pointer;
-  background-color: #faefef; }
+  background-color: #faefef; 
+}
 
 /*////////////////////*/
 /*        VIEW        */
