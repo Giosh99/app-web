@@ -173,12 +173,15 @@ window.onload = function() {
         internalRow.className += "d-flex flex-row w-100 align-items-center";
         internalRow.style.height = "5vh";
         let imgSpace = document.createElement("div");
-        imgSpace.className += "col-3";
+        imgSpace.className += "col-3 justify-self-center align-self-center";
+        let img = document.createElement("div");
+        img.className += "user-photo-chat";
         let usernameBox = document.createElement("div");
         usernameBox.className += "col";
         let username = document.createTextNode(name);
         // append chil
         usernameBox.appendChild(username);
+        imgSpace.appendChild(img);
         internalRow.appendChild(imgSpace);
         internalRow.appendChild(usernameBox);
         rowMessageBox.appendChild(internalRow);

@@ -168,6 +168,12 @@ html {
   background: #ccc;
   border-radius: 50%; }
 
+  .user-photo-chat {
+    width: 3vh;
+    height: 3vh;
+    background: #ccc;
+    border-radius: 50%; }
+
 .chat .chat-message {
   width: 80%;
   padding: 1vh;
