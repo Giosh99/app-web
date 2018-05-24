@@ -30,7 +30,7 @@ window.onload = function() {
 
         let column = document.createElement("div");
         column.className += "col-9 align-self-end h-100 w-100 p-0";
-        column.setAttribute("id", "firstLoadView")
+        column.setAttribute("id", "firstLoadView");
         let row = document.createElement("div");
         row.className += "flex-row d-flex w-100 h-100 justify-content-center align-items-center";
         let node = document.createElement("div");
@@ -90,12 +90,14 @@ window.onload = function() {
         ///TODO
         //i campi dell'oggetto json devono essere quelli presenti nella tabella messages.
         let message = document.getElementById("textarea").value;
+        if(/\s/.test(message) || message == "") {
+            return;
+        }
         document.getElementById("textarea").value = "";
         let msg = {
             action: 'message',
             userId: <?php echo $user->getUserId();?>,
             text: message,
-            id: 1,
             to: activatedChat,
             type: 'message',
         };
@@ -213,6 +215,9 @@ window.onload = function() {
             row = createRowForMessageReceived(msg.text);
         }
         document.getElementById("msg").appendChild(row);
+        /*let view = document.getElementById("view");
+        alert(view.scrollHeight);
+        document.getElementById("view\1").scrollTo(0,view+100);*/
         }
         else {}
         }

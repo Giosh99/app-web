@@ -1,52 +1,5 @@
 <?php
 namespace classes;
-class chat {
-        public $user;
-        private $n;
-        public function __construct($userId,$name,$surname, $mail, $img, $messages) {
-                $this->user = new user($userId,$this->createNameBox($name),$surname,$mail, $img, $messages);
-        }
-
-        private function createNameBox($name) {
-                return "<span>".$name."</span>";
-        }
-           
-        public function singleMessageBox($id) { 
-                return '<div class="col-12 p-0 m-0 mt-1 mb-1 message_box" id="'.$id.'">
-                   <div class="d-flex flex-row w-100 align-items-center" style="height:5vh">
-                       <div class="col-3"></div>
-                       <div class="col">'.$this->user->getName().'</div>
-                   </div>
-                 </div>';
-        }
-
-        public function addChat($message) {
-                $this->message[$this->n] = $message;
-                $this->$n = $this->$n +1;
-        }
-}
-
-class chats {
-        private $username;
-        private $servername;
-        private $password;
-        private $databasename;
-        private $conn;
-        public $arrayChats;
-
-        public function __construct() {
-            $this->arrayChats = Array();
-        }
-
-
-        public function inizialiseChats() {
-
-                $chat1 = new chat("1","Giosuè", "Calgaro","nope","","first message");
-                $chat2 = new chat("2","Giorgio", "Diprima","nope","","first message");
-                array_push($this->arrayChats,$chat1);
-                array_push($this->arrayChats,$chat2);
-        }
-    }
 
 class user {
         private $userId;
@@ -124,13 +77,11 @@ class database {
                 $sender = (int)$messageDecoded['userId'];
                 $receiver = (int)$to;
                 $textMessage = (string)$messageDecoded['text'];
-                $messageId = (int) $messageDecoded['id'];
 
                 $chat = $this->getChatId($sender, $receiver);
-                $chatId = (int)$chat['ID'];
                 $date = date("l");
 
-                $stm_add_message->bind_param("sii",$textMessage, $sender, $chatId);
+                $stm_add_message->bind_param("sii",$textMessage, $sender, $chat);
                 $stm_add_message->execute();
         }
 
@@ -140,16 +91,16 @@ class database {
                 $receiver = (int)$to;
                 echo '  sender:'.$sender;
                 echo '  receiver: '.$receiver;
-                $query = "SELECT ID FROM chat WHERE (Sender='$sender' AND Receiver='$receiver') OR (Sender='$receiver' AND Receiver='$sender')";
+                $query = "SELECT ID FROM chat WHERE (Sender='$sender' AND Receiver='$receiver') OR (Sender='$receiver' AND Receiver='$sender');";
                // echo $receiver." ".$sender;
                 //$ReverseReceiver = $receiver;
                 //$ReverseSender = $sender;
                 //$stm_search_chat->bind_param("iiii",$sender,$receiver,$ReverseReceiver,$ReverseSender);
                 //$result = $stm_search_chat->execute();
                 $result = $this->connection->query($query);
-                var_dump($result);
                 if($result->num_rows > 0) {
-                        return $result->fetch_assoc();
+                        $ap = $result->fetch_assoc();
+                        return $ap['ID'];
                 }
                 else {
                         echo "error in the select chat";
@@ -188,8 +139,9 @@ class database {
         public function getMessages($client) {
                 $messages = Array();
                 /*$stm_take_messages = $this->connection->prepare('SELECT MessageID,Message,Direction FROM messages WHERE chatId=?;');*/
+                echo "___".$client->getUserId();
                 $id = (int)$this->getChatId($client->getUserId(), $client->getSpeaker());
-                echo $id;
+                echo "___________".$id."_________";
                 /*
                 echo $id;
                 $stm_take_messages->bind_param("i",$id);
