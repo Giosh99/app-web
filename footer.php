@@ -11,7 +11,7 @@ $connection = " ";
 $user = new classes\user($userId,$name,$mail, $img, $connection);
 
 ?>
-
+<script src="classes.js"></script>
 <script>
 window.onload = function() {
     let activatedChat = "";
@@ -37,7 +37,8 @@ window.onload = function() {
         node.className += "col text-center";
         let textNode = document.createTextNode("Please select a chat to start messaging");
         node.appendChild(textNode);
-        node.style.color = "rgb(179, 179, 203)";
+        node.style.color = "#999";
+        node.classList.add("noselect");
         row.appendChild(node);
         column.appendChild(row);
         column.style.backgroundColor = "white";
@@ -100,6 +101,7 @@ window.onload = function() {
             text: message,
             to: activatedChat,
             type: 'message',
+            load: 'client',
         };
         console.log(<?php echo $user->getUserId() ?>);
         wbSocket.send(JSON.stringify(msg));
@@ -110,14 +112,14 @@ window.onload = function() {
     // it's fired when the connection is estabilished
     wbSocket.onopen = function(event) {
         console.log("connection estabilished");
-        $connectionMessage = {
+        connectionMessage = {
             action: 'connect',
             userId: <?php echo $user->getUserId();?>,
             name: "<?php echo $user->getName(); ?>",
             mail: "<?php echo $user->getMail();?>",
             img: "<?php echo $user->getImg();?>",
         }
-        wbSocket.send(JSON.stringify($connectionMessage));
+        wbSocket.send(JSON.stringify(connectionMessage));
     }
     //formatting the message with some classes and css
     function createRowForMessageSent(text) {
@@ -215,6 +217,12 @@ window.onload = function() {
             row = createRowForMessageReceived(msg.text);
         }
         document.getElementById("msg").appendChild(row);
+        if(msg.load == 'client') {
+            let speaker = msg.to;
+            let chatNode = document.getElementById(speaker);
+            let parent = document.getElementById("sidebar");
+            parent.prepend(chatNode);
+        }
         /*let view = document.getElementById("view");
         alert(view.scrollHeight);
         document.getElementById("view\1").scrollTo(0,view+100);*/

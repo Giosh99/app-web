@@ -2,6 +2,16 @@
 /*       INDEX        */
 /*////////////////////*/
 
+html {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; 
+          
+}
+
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -81,7 +91,7 @@ button {
   padding-bottom: 4px; }
 
 input[type=range] {
-  -webkit-appearance: none;
+  -webkit-appearance-: none;
   /* Hides the slider so that custom slider can be made */
   width: 100%;
   /* Specific width is required for Firefox. */
@@ -89,7 +99,7 @@ input[type=range] {
   /* Otherwise white in Chrome */ }
 
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; }
+  -webkit-appearance-: none; }
 
 input[type=range]:focus {
   outline: none;
@@ -194,7 +204,7 @@ html {
   font-size: 1.5vh; }
 
 .friend .chat-message {
- /* background: #1adda4; */}
+ /* background: #1adda4;*/ }
 
 .self .chat-message {
   order: -1; }

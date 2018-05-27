@@ -161,6 +161,7 @@ class database {
                 $msg['userId'] = $message['Direction'];
                 $msg['text'] = $message['Message'];
                 $msg['to'] = $to;
+                $msg['load'] = 'server';
                 return $msg;
         }
 

@@ -17,7 +17,7 @@ function sec_session_start() {
        die();
     }
 
-    $print = function($frame) {echo $frame; }; 
+    //$print = function($frame) {echo $frame; }; 
 
 ?>
 
@@ -26,6 +26,7 @@ function sec_session_start() {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--<meta http-equiv="Content-Security-Policy" content="connect-src 'self'"> -->
     <!---------------------------------------- required css ------------------------------------------------>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <!----------------------------------------- start of page -->

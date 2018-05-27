@@ -69,8 +69,7 @@ class server implements MessageComponentInterface {
         $message = json_encode($message);
         $receiver = $this->findClient($to);
         if(isset($receiver)) {
-            $connectionReceiver = $receiver->getConnection();
-            $connectionReceiver->send($message);
+            $receiver->getConnection()->send($message);
         }
         $from->getConnection()->send($message);
         $this->database->AddMessage($message,$to);
@@ -83,14 +82,6 @@ class server implements MessageComponentInterface {
         else {
             echo 'client doesnt exist';
         }
-    }
-
-    public function LoadMessages($id) {
-        
-    }
-
-    public function LoadChats($id) {
-
     }
 
     public function onOpen(ConnectionInterface $conn) {
