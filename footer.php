@@ -14,11 +14,15 @@ $user = new classes\user($userId,$name,$mail, $img, $connection);
 <script src="classes.js"></script>
 <script>
 window.onload = function() {
+
     let activatedChat = "";
     let receiver;
     let viewChanged = false;
     let c = <?php echo $user->getUserId(); ?>;
     console.log(c);
+
+    let chatList;
+
     if(activatedChat == "") {
         loadViewForUnclickedChat();
     }
@@ -91,7 +95,8 @@ window.onload = function() {
         ///TODO
         //i campi dell'oggetto json devono essere quelli presenti nella tabella messages.
         let message = document.getElementById("textarea").value;
-        if(/\s/.test(message) || message == "") {
+        if (!message.replace(/\s/g, '').length) {
+            // string only contained whitespace (ie. spaces, tabs or line breaks)
             return;
         }
         document.getElementById("textarea").value = "";
@@ -192,6 +197,35 @@ window.onload = function() {
         return rowMessageBox;
     }
 
+    function rowErrorSearchChat() {
+        let rowMessageBox = document.createElement("div");
+        rowMessageBox.className += "col-12 p-0 m-0 mt-1 mb-1";
+        let internalRow = document.createElement("div");
+        internalRow.className += "d-flex flex-row w-100 align-items-center";
+        internalRow.style.height = "5vh";
+        let usernameBox = document.createElement("div");
+        usernameBox.className += "col";
+        let username = document.createTextNode("There are no chats");
+        usernameBox.style.color = "#999";
+        usernameBox.classList.add("noselect");
+        // append chil
+        usernameBox.appendChild(username);
+        internalRow.appendChild(usernameBox);
+        rowMessageBox.appendChild(internalRow);
+        return rowMessageBox;
+    }
+
+    function addChatsToSidebar(array) {
+        // eseguo un foreach per prendermi tutte le chat
+        let parent = document.getElementById("sidebar");
+        array.forEach(function(e) {
+            let element = createRowForOpenedChat(e.user_name);
+            element.setAttribute("id",e.userId);
+            element.addEventListener("click",clicked_message_box,false);
+            parent.appendChild(element);
+        }); 
+    }
+
     //it's fired when a message arrives from server
     wbSocket.onmessage = function(event) {
         console.log(event.data);
@@ -199,40 +233,127 @@ window.onload = function() {
         console.log(msg);
         if(msg.type == 'chat') {
             console.log(" chat  arrived   ");
-            let parent = document.getElementById("sidebar");
             console.log(msg['chats']);
-            msg['chats'].forEach(function(e) {
-                let element = createRowForOpenedChat(e.user_name);
-                element.setAttribute("id",e.userId);
-                element.addEventListener("click",clicked_message_box,false);
-                parent.appendChild(element);
-            }); 
+            // salvo in una variabile globale tutte le chat in modo 
+            // da accederci durante la ricerca delle chat
+            chatList = msg['chats'];
+            // aggiungo le chat alla sidebar
+            addChatsToSidebar(msg['chats']);
+
         }
         else {
-        if(activatedChat == msg.to){
-            if(msg.userId == <?php echo $user->getUserId();?>) {
-            row = createRowForMessageSent(msg.text);
-        }
-        else {
-            row = createRowForMessageReceived(msg.text);
-        }
-        document.getElementById("msg").appendChild(row);
-        if(msg.load == 'client') {
-            let speaker = msg.to;
-            let chatNode = document.getElementById(speaker);
-            let parent = document.getElementById("sidebar");
-            parent.prepend(chatNode);
-        }
-        /*let view = document.getElementById("view");
-        alert(view.scrollHeight);
-        document.getElementById("view\1").scrollTo(0,view+100);*/
-        }
-        else {}
+                let speaker
+                if(msg.userId == <?php echo $user->getUserId();?>) {
+                    row = createRowForMessageSent(msg.text);
+                    speaker = msg.to;
+                }
+                else if(activatedChat == msg.userId) {
+                    row = createRowForMessageReceived(msg.text);
+                    speaker = msg.userId;
+                }
+                document.getElementById("msg").appendChild(row);
+                if(msg.load == 'client') {
+                    let chatNode = document.getElementById(speaker);
+                    let parent = document.getElementById("sidebar");
+                    parent.prepend(chatNode);
+                }
         }
     }
     wbSocket.onerror = function() {
         wbSocket.close();
     }
+
+//----------------------------------- search for a chat ---------------------------------
+    searchbar = document.getElementById("searchbar");
+    searchbar.addEventListener("keyup", searchForChat, false);
+
+    function searchForChat() {
+        let chats = [];
+        let val = this.value;
+        let lenghtVal = val.length;
+        let buffer = [];
+        let node = document.getElementById("sidebar");
+        let nodes = node.querySelectorAll(".message_box");
+        e = document.getElementById("error");
+        if(e != null) {
+            node.removeChild(e);
+        }
+        //alert(nodes.length);
+        /////////////////////initialise buffer/////////////////////////////////////////
+        for(var q = 0; q<chatList.length; q++) {
+            buffer[q] = false;
+        }
+        /////////////////////////////////////////////////////////////
+
+        for(let a = 0; a < chatList.length; a++) {
+            let char = chatList[a].user_name.substr(0, lenghtVal);
+            if(char == "") {
+                while (node.firstChild) {
+                    node.removeChild(node.firstChild);
+                }
+                addChatsToSidebar(chatList);
+                return;
+            }
+            else if(val == char) {
+                chats.push(chatList[a].userId);
+            }
+        }
+        //////////////////////////////////
+        for(var x = 0; x<chats.length; x++) {
+            console.log(chats[x]);
+        }
+        ///////////////////////////////////
+        if(chats=="") {
+            let error = rowErrorSearchChat();
+            while (node.firstChild) {
+                node.removeChild(node.firstChild);
+            }
+            error.setAttribute("id", "error")
+            node.append(error);
+            if(this.value == "" || this.value == null) {
+                node.removeChild(node.firstChild);
+                addChatsToSidebar(chatList);        
+            }
+        }
+        else {
+            for(var a = 0; a < chats.length; a++) {
+                for(var i = 0; i< nodes.length; i++) {
+                    if(chats[a] == nodes[i].id) {  
+                        buffer[i] = true;
+                        continue;
+                    }
+                    else {
+                        if(buffer[i] == true) {
+                            continue;
+                        }
+                        else {
+                            buffer[i] = false;
+                        }
+                    }
+                    }
+            }
+            for(var z = 0; z<buffer.length; z++) {
+                if(buffer[z] == false && nodes[z] != null) {
+                    document.getElementById("sidebar").removeChild(nodes[z]);
+                    buffer[z] = "";
+                }
+            }
+
+            for(z = 0; z<chats.length; z++) {
+                b = document.getElementById(chats[z]);
+                if(b==null) {
+                    for(var t = 0; t<chatList.length; t++) {
+                        if(chatList[t].userId == chats[z]) {
+                            let param = [chatList[t]];
+                            addChatsToSidebar(param);
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
 }
 
 </script>

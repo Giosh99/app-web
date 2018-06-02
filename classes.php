@@ -146,7 +146,7 @@ class database {
                 echo $id;
                 $stm_take_messages->bind_param("i",$id);
                 $result = $stm_take_messages->execute();*/
-                $query = 'SELECT MessageID,Message,Direction FROM messages WHERE chatId='.$id.';';
+                $query = 'SELECT MessageID,Message,Direction, chatId FROM messages WHERE chatId='.$id.';';
                 $result = $this->connection->query($query);
                 if($result->num_rows>0) {
                         while($row = $result->fetch_assoc()) {
@@ -162,6 +162,7 @@ class database {
                 $msg['text'] = $message['Message'];
                 $msg['to'] = $to;
                 $msg['load'] = 'server';
+                //$msg['id'] = $message['chatId'] + $message['MessageId'];
                 return $msg;
         }
 
