@@ -186,13 +186,16 @@ window.onload = function() {
         let img = document.createElement("div");
         img.className += "user-photo-chat";
         let usernameBox = document.createElement("div");
-        usernameBox.className += "col";
+        usernameBox.className += "col-7";
+        let notificationBox = document.createElement("div");
+        notificationBox.className+="col";
         let username = document.createTextNode(name);
         // append chil
         usernameBox.appendChild(username);
         imgSpace.appendChild(img);
         internalRow.appendChild(imgSpace);
         internalRow.appendChild(usernameBox);
+        internalRow.appendChild(notificationBox);
         rowMessageBox.appendChild(internalRow);
         return rowMessageBox;
     }
@@ -352,6 +355,14 @@ window.onload = function() {
             }
 
         }
+    }
+    //////////////////////////notification///////////////////////////////////
+    function createNotification(n) {
+        let notBox = document.createElement("div");
+        notBox.className+="notification";
+        let number = document.createTextNode(n);
+        notBox.appendChild(number);
+        return notBox;
     }
 
 }
