@@ -18,10 +18,8 @@ window.onload = function() {
     let activatedChat = "";
     let receiver;
     let viewChanged = false;
-    let c = <?php echo $user->getUserId(); ?>;
-    console.log(c);
-
     let chatList;
+    let notifications = [];
 
     if(activatedChat == "") {
         loadViewForUnclickedChat();
@@ -53,10 +51,14 @@ window.onload = function() {
 
     function clicked_message_box() {
         if(activatedChat != "") {
-            document.getElementById(activatedChat).style.backgroundColor = "white";
-            document.getElementById(activatedChat).style.hover = "#faefef";
+            document.getElementById(activatedChat).classList.remove("message_box_clicked");
+            document.getElementById(activatedChat).classList.add("message_box");
         }
-        document.getElementById(this.id).style.backgroundColor = "#009788";
+        document.getElementById(this.id).classList.remove("message_box");
+        document.getElementById(this.id).classList.add("message_box_clicked");
+        if(document.getElementById("notification-"+this.id).classList.contains("notification")) {
+            document.getElementById("notification-"+this.id).classList.remove("notification");
+        }
         activatedChat = this.id;
             //change view
         if(viewChanged != true) {
@@ -137,7 +139,7 @@ window.onload = function() {
         let chat = document.createElement("div");
         chat.className += "chat self col-12";
         let userFoto = document.createElement("div");
-        userFoto.className += "user-photo";
+        userFoto.className += "user-photo-desktop";
         let chatMessage = document.createElement("p");
         chatMessage.className += "chat-message wrap";
         let textNode = document.createTextNode(text);
@@ -161,7 +163,7 @@ window.onload = function() {
         let chat = document.createElement("div");
         chat.className += "chat friend col-12";
         let userFoto = document.createElement("div");
-        userFoto.className += "user-photo";
+        userFoto.className += "user-photo-desktop";
         let chatMessage = document.createElement("p");
         chatMessage.className +="chat-message wrap";
         let textNode = document.createTextNode(text);
@@ -175,21 +177,22 @@ window.onload = function() {
         return row;
     }
 
-    function createRowForOpenedChat(name) {
+    function createRowForChat(e) {
         let rowMessageBox = document.createElement("div");
-        rowMessageBox.className += "col-12 p-0 m-0 mt-1 mb-1 message_box";
+        rowMessageBox.className += "col-12 p-0 m-0 mt-1 mb-1 message_box chat-box";
         let internalRow = document.createElement("div");
         internalRow.className += "d-flex flex-row w-100 align-items-center";
         internalRow.style.height = "5vh";
         let imgSpace = document.createElement("div");
         imgSpace.className += "col-3 justify-self-center align-self-center";
         let img = document.createElement("div");
-        img.className += "user-photo-chat";
+        img.className += "user-photo-chat-desktop";
         let usernameBox = document.createElement("div");
         usernameBox.className += "col-7";
         let notificationBox = document.createElement("div");
         notificationBox.className+="col";
-        let username = document.createTextNode(name);
+        notificationBox.setAttribute("id", "notification-"+e.userId);
+        let username = document.createTextNode(e.user_name);
         // append chil
         usernameBox.appendChild(username);
         imgSpace.appendChild(img);
@@ -222,7 +225,7 @@ window.onload = function() {
         // eseguo un foreach per prendermi tutte le chat
         let parent = document.getElementById("sidebar");
         array.forEach(function(e) {
-            let element = createRowForOpenedChat(e.user_name);
+            let element = createRowForChat(e);
             element.setAttribute("id",e.userId);
             element.addEventListener("click",clicked_message_box,false);
             parent.appendChild(element);
@@ -254,6 +257,9 @@ window.onload = function() {
                     row = createRowForMessageReceived(msg.text);
                     speaker = msg.userId;
                 }
+                else {
+                    document.getElementById("notification-"+msg.userId).classList.add("notification");
+                }
                 document.getElementById("msg").appendChild(row);
                 if(msg.load == 'client') {
                     let chatNode = document.getElementById(speaker);
@@ -276,12 +282,14 @@ window.onload = function() {
         let lenghtVal = val.length;
         let buffer = [];
         let node = document.getElementById("sidebar");
-        let nodes = node.querySelectorAll(".message_box");
+        // uso la selector con le classi perchè più precisa, 
+        // dato che era già capitato che childNodes prendesse
+        // nodi con id undefined, opto per questa scelta
+        let nodes = node.querySelectorAll(".chat-box");
         e = document.getElementById("error");
         if(e != null) {
             node.removeChild(e);
         }
-        //alert(nodes.length);
         /////////////////////initialise buffer/////////////////////////////////////////
         for(var q = 0; q<chatList.length; q++) {
             buffer[q] = false;
@@ -290,11 +298,19 @@ window.onload = function() {
 
         for(let a = 0; a < chatList.length; a++) {
             let char = chatList[a].user_name.substr(0, lenghtVal);
-            if(char == "") {
+            if(char == "" || val == "" || val == null || val == " ") {
                 while (node.firstChild) {
                     node.removeChild(node.firstChild);
                 }
                 addChatsToSidebar(chatList);
+                if(activatedChat != "") {
+                    for(var r = 0; r<chatList.length; r++) {
+                        if(chatList[r].userId == activatedChat) {
+                            document.getElementById(activatedChat).classList.remove("message_box");
+                            document.getElementById(activatedChat).classList.add("message_box_clicked");
+                        }
+                    }
+                }
                 return;
             }
             else if(val == char) {
@@ -349,7 +365,13 @@ window.onload = function() {
                         if(chatList[t].userId == chats[z]) {
                             let param = [chatList[t]];
                             addChatsToSidebar(param);
+                            // se una chat era attiva e poi è stata tolta dal dom, quando riappare deve 
+                            // tornare allo stato di prima.
+                            if(chats[z] == activatedChat) {
+                            document.getElementById(activatedChat).classList.remove("message_box");
+                            document.getElementById(activatedChat).classList.add("message_box_clicked");
                         }
+                    }
                     }
                 }
             }

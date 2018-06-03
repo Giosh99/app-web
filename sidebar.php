@@ -1,4 +1,4 @@
-<div class="col-3 d-none d-md-block h-100 p-0 m-0" style="background-color:white !important;">
+<div class="col-3  h-100 p-0 m-0" style="background-color:white !important; overflow-x: hidden;">
 <div class="flex-row flex-row" style="height:6vh">
     <div class="col-12 m-0 p-0" style="height:1vh"></div> <!-- margine -->
         <!-- Search form -->
@@ -7,8 +7,8 @@
          </div>
 </div>
 
-<div class="d-flex flex-row m-0 p-0" id="scrollbar" style="overflow-y:scroll; height:87vh;">
-    <div class="col-12 d-none d-sm-block p-0 m-0"  id="sidebar" style="background-color:white !important;">
+<div class="d-flex flex-row m-0 p-0" id="scrollbar" style="overflow-y:scroll;overflow-x:hidden; height:87vh;">
+    <div class="col-12  p-0 m-0"  id="sidebar" style="background-color:white !important;">
     </div>
 </div>
 </div>
