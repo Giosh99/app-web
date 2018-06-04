@@ -50,9 +50,11 @@ window.onload = function() {
     /*-----------------Add event listener for all the chats appeard in the database-----------*/
 
     function clicked_message_box() {
-        if(activatedChat != "") {
-            document.getElementById(activatedChat).classList.remove("message_box_clicked");
-            document.getElementById(activatedChat).classList.add("message_box");
+        if(activatedChat != "" && document.getElementById(activatedChat)) {
+            if(document.getElementById(activatedChat).classList.contains("message_box_clicked")) {
+                document.getElementById(activatedChat).classList.remove("message_box_clicked");
+                document.getElementById(activatedChat).classList.add("message_box");
+            }
         }
         document.getElementById(this.id).classList.remove("message_box");
         document.getElementById(this.id).classList.add("message_box_clicked");
