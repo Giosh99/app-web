@@ -1,7 +1,8 @@
 
 <?php
-$cmd = "php server/server.php";
-shell_exec($cmd);
+$cmd = 'cd server && php server.php';
+
+echo shell_exec($cmd);
 
 ?>
 
