@@ -1,6 +1,6 @@
 
 <?php
-$cmd = "php server/aserver.php";
+$cmd = "php server/server.php";
 shell_exec($cmd);
 
 ?>
