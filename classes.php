@@ -60,7 +60,7 @@ class database {
         private function connectToDatabase() {
                 $localhost = 'localhost';
                 $user = 'root';
-                $password = '';
+                $password = 'admin';
                 $database = 'sail';
                 $this->connection = new \mysqli($localhost, $user, $password, $database);
                 if ($this->connection->connect_error) {

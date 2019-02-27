@@ -85,10 +85,11 @@ window.onload = function() {
 
     function sendDestinationMessage(id) {
         console.log(id);
+        $message1 = new destinationMessage(<?php echo $user->getUserId();?>, id);
         $message = {
-            userId: <?php echo $user->getUserId();?>,
-            action: 'to',
-            to: id,
+            userId : <?php echo $user->getUserId();?>,
+            action : "to",
+            to : id,
         }
         wbSocket.send(JSON.stringify($message));
     }
@@ -104,6 +105,8 @@ window.onload = function() {
             return;
         }
         document.getElementById("textarea").value = "";
+       // msg1 = new message(<?php echo $user->getUserId();?>, message, activatedChat);
+
         let msg = {
             action: 'message',
             userId: <?php echo $user->getUserId();?>,
@@ -117,10 +120,11 @@ window.onload = function() {
     }
 
     // initialize the websocket
-    var wbSocket = new WebSocket("ws://localhost:8080");
+    var wbSocket = new WebSocket("ws://localhost:7897");
     // it's fired when the connection is estabilished
     wbSocket.onopen = function(event) {
         console.log("connection estabilished");
+        connectionMessage1 = new connectionMessage(<?php echo $user->getUserId();?>,"<?php echo $user->getName(); ?>","<?php echo $user->getMail();?>","<?php echo $user->getImg();?>",);
         connectionMessage = {
             action: 'connect',
             userId: <?php echo $user->getUserId();?>,

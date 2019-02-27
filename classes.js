@@ -6,7 +6,23 @@ class connectionMessage {
         this.img = img;
         const action = 'connect';
     }
-    test() {
-        this.action = 'not connect';
+}
+
+class destinationMessage {
+    constructor(userId, to) {
+        this.userId = userId;
+        const connection ="to";
+        this.to = to;
+    }
+}
+
+class message {
+    constructor(userId, text, to) {
+        this.userId = userId;
+        this.text = text;
+        this.to = to;
+        const action = "message";
+        this.type = "message";
+        this.load = "client";
     }
 }
